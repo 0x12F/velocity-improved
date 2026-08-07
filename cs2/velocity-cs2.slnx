@@ -1,0 +1,8 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Development" />
+    <BuildType Name="Ship" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="velocity-cs2/velocity-cs2.vcxproj" Id="d30ae6e8-620d-42e0-b3f4-804cafe20f44" />
+</Solution>

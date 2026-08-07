@@ -1,0 +1,87 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Other editors
+.vscode/
+.idea/
+
+# Build output and debug symbols
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.pdb
+*.ilk
+*.exp
+*.iobj
+*.ipdb
+*.recipe
+*.tlog
+*.lastbuildstate
+
+# Crash dumps and logs
+*.dmp
+*.log
+
+# IDA databases
+*.i64
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
+
+# Test artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+pytest-of-*/
+
+# Local analysis and dependency state
+.analysis/
+*.wer
+vcpkg_installed/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
