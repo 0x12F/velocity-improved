@@ -19,3 +19,6 @@ msbuild cs2\velocity-cs2\velocity-cs2.vcxproj /m /p:Configuration=Ship /p:Platfo
 The Ship build is written to `cs2\bin\cs2.dll`. Use `Configuration=Development` to produce `cs2\bin\velocity-cs2-dev.dll` with development diagnostics.
 
 If you use a standalone vcpkg installation instead of Visual Studio's bundled copy, set `VCPKG_ROOT` to its directory before building.
+
+
+this is not a seperate project.
