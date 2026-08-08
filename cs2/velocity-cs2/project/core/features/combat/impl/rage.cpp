@@ -1068,7 +1068,8 @@ namespace features::combat {
 				continue;
 			}
 
-			if ( pen.damage < cand.min_damage )
+			const auto is_lethal = pen.damage >= static_cast< float >( cand.health );
+			if ( !is_lethal && pen.damage < cand.min_damage )
 			{
 				continue;
 			}
