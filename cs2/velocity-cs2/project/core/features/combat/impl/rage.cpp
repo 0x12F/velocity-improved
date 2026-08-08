@@ -1202,6 +1202,7 @@ namespace features::combat {
 			int hit_index;
 			float hitchance;
 			float score;
+			bool passes_hitchance;
 		};
 
 		std::vector<evaluated_hit> evaluated;
@@ -1256,7 +1257,7 @@ namespace features::combat {
 				score += static_cast< float >( hitgroup_priority( h.hitbox_index ) ) * 2.0f;
 				score -= h.fov * 0.1f;
 
-				evaluated.push_back( evaluated_hit{ idx, hc, score } );
+				evaluated.push_back( evaluated_hit{ idx, hc, score, passes_hitchance } );
 			}
 		}
 
@@ -1276,8 +1277,9 @@ namespace features::combat {
 				continue;
 			}
 
-			auto is_better = !best.valid || e.score > best.score;
-			if ( best.valid && std::fabsf( e.score - best.score ) < 0.01f )
+			const auto best_passes_hitchance = best.valid && ( config.no_spread.value || best.hitchance >= needed_hc );
+			auto is_better = !best.valid || ( e.passes_hitchance != best_passes_hitchance ? e.passes_hitchance : e.score > best.score );
+			if ( best.valid && e.passes_hitchance == best_passes_hitchance && std::fabsf( e.score - best.score ) < 0.01f )
 			{
 				if ( h.record->tick != best.hit.record->tick )
 				{
