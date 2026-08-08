@@ -848,21 +848,10 @@ namespace features::combat {
 						}
 
 						auto hits = this->scan_player( eye, inaccuracy, ctx, cand, cand.records[ ri ], local );
-						const auto has_direct_hit = std::any_of( hits.begin( ), hits.end( ), [ ]( const scan_hit& hit )
-							{
-								return !hit.penetrated;
-							} );
 
 						for ( auto& h : hits )
 						{
 							candidate_hits.push_back( std::move( h ) );
-						}
-
-						// A viable shot on the newest record is both more reliable and
-						// cheaper than evaluating historical poses for the same target.
-						if ( has_direct_hit )
-						{
-							break;
 						}
 					}
 				}
@@ -1084,15 +1073,29 @@ namespace features::combat {
 				continue;
 			}
 
-			if ( !tp.is_center && tp.hitbox_index == 0 )
+			const auto actual_hitbox_index = pen.hitbox >= 0 ? pen.hitbox : tp.hitbox_index;
+			const systems::hitboxes::entry* actual_hitbox{ nullptr };
+
+			for ( const auto& entry : hitbox_set )
 			{
-				if ( pen.hitgroup != systems::g_hitboxes.hitgroup_from_hitbox( tp.hitbox_index ) )
+				if ( entry.index == actual_hitbox_index )
 				{
-					continue;
+					actual_hitbox = &entry;
+					break;
 				}
 			}
 
-			if ( tp.is_center && tp.hitbox_index >= 0 && tp.hitbox_index < static_cast< int >( center_sufficient.size( ) ) )
+			if ( !actual_hitbox || actual_hitbox->bone < 0 || actual_hitbox->bone >= 28 )
+			{
+				continue;
+			}
+
+			if ( !tp.is_center && tp.hitbox_index == 0 && actual_hitbox_index != 0 )
+			{
+				continue;
+			}
+
+			if ( tp.is_center && actual_hitbox_index == tp.hitbox_index && tp.hitbox_index >= 0 && tp.hitbox_index < static_cast< int >( center_sufficient.size( ) ) )
 			{
 				center_sufficient[ tp.hitbox_index ] = !pen.penetrated || pen.damage >= static_cast< float >( cand.health );
 			}
@@ -1102,11 +1105,11 @@ namespace features::combat {
 			h.aim_angle = aim;
 			h.damage = pen.damage;
 			h.fov = fov;
-			h.hitbox_index = tp.hitbox_index;
+			h.hitbox_index = actual_hitbox_index;
 			h.hitgroup = pen.hitgroup;
-			h.bone_index = tp.bone_index;
-			h.hitbox = tp.hitbox;
-			h.is_center = tp.is_center;
+			h.bone_index = actual_hitbox->bone;
+			h.hitbox = *actual_hitbox;
+			h.is_center = tp.is_center && actual_hitbox_index == tp.hitbox_index;
 			h.penetrated = pen.penetrated;
 			h.pawn = cand.pawn;
 			h.health = cand.health;
@@ -1687,8 +1690,8 @@ namespace features::combat {
 				}
 			}
 
-			entry->set_render_tick_count( record_time.tick );
-			entry->set_render_tick_fraction( record_time.frac );
+			entry->set_render_tick_count( record_time.tick + 1 );
+			entry->set_render_tick_fraction( 0.0f );
 
 			if ( !tgt.hit.source_eye.is_uninterpolated )
 			{
@@ -1797,8 +1800,8 @@ namespace features::combat {
 				angles->set_y( tgt.hit.aim_angle.y );
 			}
 
-			entry->set_render_tick_count( record_time.tick );
-			entry->set_render_tick_fraction( record_time.frac );
+			entry->set_render_tick_count( record_time.tick + 1 );
+			entry->set_render_tick_fraction( 0.0f );
 
 			if ( !tgt.hit.source_eye.is_uninterpolated )
 			{
