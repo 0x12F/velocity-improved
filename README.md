@@ -21,4 +21,4 @@ The Ship build is written to `cs2\bin\cs2.dll`. Use `Configuration=Development` 
 If you use a standalone vcpkg installation instead of Visual Studio's bundled copy, set `VCPKG_ROOT` to its directory before building.
 
 
-this is not a seperate project.
+this is not a seperate project
