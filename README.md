@@ -1,24 +1,55 @@
 ## Requirements
 
-- Visual Studio 2022 or Newer
-- The **Desktop development with C++** workload
-- The **C++ Clang tools for Windows** and **vcpkg** components
-- An x64 processor with AVX2 support
+- Visual Studio 2022 or newer
+- Desktop development with C++ workload
+- C++ Clang tools for Windows
+- vcpkg component for Visual Studio
+- x64 CPU with AVX2 support
 - Internet access for the first dependency restore
 
-FreeType is declared in `vcpkg.json` and is restored automatically by Visual Studio/MSBuild.
+FreeType is declared in `cs2/velocity-cs2/vcpkg.json` and is restored
+automatically by Visual Studio/MSBuild.
 
-## Build
+## Build Guide
 
-Open a **Developer PowerShell for Visual Studio** at the repository root and run:
+Open a Developer PowerShell for Visual Studio at the repository root.
+
+Build the Ship configuration:
 
 ```powershell
 msbuild cs2\velocity-cs2\velocity-cs2.vcxproj /m /p:Configuration=Ship /p:Platform=x64
 ```
 
-The Ship build is written to `cs2\bin\cs2.dll`. Use `Configuration=Development` to produce `cs2\bin\velocity-cs2-dev.dll` with development diagnostics.
+The Ship build output is written to:
 
-If you use a standalone vcpkg installation instead of Visual Studio's bundled copy, set `VCPKG_ROOT` to its directory before building.
+```text
+cs2\bin\cs2.dll
+```
 
+Build the Development configuration:
 
-this is not a seperate project
+```powershell
+msbuild cs2\velocity-cs2\velocity-cs2.vcxproj /m /p:Configuration=Development /p:Platform=x64
+```
+
+The Development build output is written to:
+
+```text
+cs2\bin\velocity-cs2-dev.dll
+```
+
+If you use a standalone vcpkg installation instead of Visual Studio's bundled
+copy, set `VCPKG_ROOT` to that installation directory before building.
+
+## Contributing
+
+Contributions are welcome. If you want to help, open a pull request with a clear
+description of what changed and why.
+
+Try to keep changes focused and easy to review. Match the existing style, use
+clear names, avoid unnecessary rewrites, and prefer small practical improvements
+over large unrelated changes.
+
+## Why
+
+I was bored.
