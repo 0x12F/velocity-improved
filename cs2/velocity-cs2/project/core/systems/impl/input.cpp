@@ -34,9 +34,11 @@ namespace systems {
 		}
 
 		auto has_move_subticks = [] (proto::base_usercmd_pb* base_cmd) {
-			// just use protobufs atp
-			for (size_t i = 0; i < base_cmd->subtick_moves_size (); i++) {
+			for (auto i = 0; i < base_cmd->subtick_moves_size (); ++i) {
 				proto::subtick_move_step* step = base_cmd->mutable_subtick_moves (i);
+				if (!step)
+					continue;
+
 				if (step->m_has_bits.test (0x8) || step->m_has_bits.test (0x10))
 					return true;
 
@@ -47,18 +49,32 @@ namespace systems {
 			return false;
 		};
 
-		// fix movement for ag2
 		diag::set_exception_phase( "input apply: subtick movement" );
 		if (!has_move_subticks (base)) {
-			if (const auto step = systems::g_input.acquire_subtick_step (base->mutable_subtick_moves ())) {
+			const auto movement_services = local.pawn
+				? memory::read<std::uintptr_t> (local.pawn + SCHEMA ("C_BasePlayerPawn", "m_pMovementServices"_hash))
+				: 0;
 
-				const auto movement_services = local.pawn ? memory::read<std::uintptr_t> (local.pawn + SCHEMA ("C_BasePlayerPawn", "m_pMovementServices"_hash)) : 0;
-				if (movement_services) {
+			if (movement_services) {
+				const auto forward_delta = base->forwardmove () -
+					memory::read<float> (movement_services + SCHEMA ("CPlayer_MovementServices", "m_flCmdForwardMove"_hash));
+				const auto left_delta = base->leftmove () -
+					memory::read<float> (movement_services + SCHEMA ("CPlayer_MovementServices", "m_flCmdLeftMove"_hash));
+
+				const auto has_meaningful_delta =
+					std::isfinite (forward_delta) && std::isfinite (left_delta) &&
+					(std::fabsf (forward_delta) > 0.0001f || std::fabsf (left_delta) > 0.0001f);
+
+				if (has_meaningful_delta) {
+					const auto step = systems::g_input.acquire_subtick_step (base->mutable_subtick_moves ());
+					if (!step)
+						return;
+
 					step->set_button (0);
 					step->set_pressed (false);
 					step->set_when (0.0f);
-					step->set_analog_forward_delta (base->forwardmove () - memory::read<float> (movement_services + SCHEMA ("CPlayer_MovementServices", "m_flCmdForwardMove"_hash)));
-					step->set_analog_left_delta (base->leftmove () - memory::read<float> (movement_services + SCHEMA ("CPlayer_MovementServices", "m_flCmdLeftMove"_hash)));
+					step->set_analog_forward_delta (forward_delta);
+					step->set_analog_left_delta (left_delta);
 				}
 			}
 		}
