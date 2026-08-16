@@ -231,7 +231,8 @@ namespace features::combat {
 	{
 		const auto& shared_ctx = g_shared.ctx( );
 		const auto& prestate = systems::g_prediction.pre( );
-		const auto speed = prestate.networked_velocity.length_2d( );
+		auto predicted_velocity = ctx.velocity;
+		const auto speed = predicted_velocity.length_2d( );
 		const auto will_stop = ctx.on_ground && ( speed > ctx.accurate_threshold || ( ctx.is_scoped && speed > 1.0f ) );
 
 		if ( !will_stop )
@@ -239,8 +240,9 @@ namespace features::combat {
 			return std::nullopt;
 		}
 
-		auto sim_vel = prestate.networked_velocity;
+		auto sim_vel = predicted_velocity;
 		sim_vel.z = 0.0f;
+		predicted_velocity.z = 0.0f;
 
 		const auto sv_friction = CONVAR("sv_friction")->get<float>( );
 		const auto sv_stopspeed = CONVAR("sv_stopspeed")->get<float>( );
@@ -289,8 +291,8 @@ namespace features::combat {
 			}
 		}
 
-		const auto avg_vel = ( prestate.networked_velocity + sim_vel ) * 0.5f;
-		const auto stop_ticks = g_shared.calculate_stop_ticks( prestate.networked_velocity, shared_ctx.weapon_max_speed, local.pawn );
+		const auto avg_vel = ( predicted_velocity + sim_vel ) * 0.5f;
+		const auto stop_ticks = g_shared.calculate_stop_ticks( predicted_velocity, shared_ctx.weapon_max_speed, local.pawn );
 		const auto stop_time = static_cast< float >( stop_ticks ) * cstypes::tick_interval;
 
 		return stop_prediction
@@ -354,17 +356,17 @@ namespace features::combat {
 			}
 
 			auto records = g_shared.lc( ).get_valid_records( pawn );
+			auto extrap = g_shared.lc( ).extrapolate( pawn );
+
+			if ( extrap )
+			{
+				const_cast<rage*>( this )->m_extrapolated_records.push_back( std::move( *extrap ) );
+				records.push_back( &const_cast<rage*>( this )->m_extrapolated_records.back( ) );
+			}
 
 			if ( records.empty( ) )
 			{
-				auto extrap = g_shared.lc( ).extrapolate( pawn );
-				if ( !extrap.has_value( ) )
-				{
-					continue;
-				}
-
-				const_cast<rage*>( this )->m_extrapolated_records.push_back( std::move( *extrap ) );
-				records.push_back( &const_cast<rage*>( this )->m_extrapolated_records.back( ) );
+				continue;
 			}
 
 			if ( max_distance_sq > 0.0f )
@@ -1319,8 +1321,7 @@ namespace features::combat {
 
 	float rage::get_standing_inaccuracy( const systems::local::snapshot& local, const aim_context& ctx ) const
 	{
-		const auto& prestate = systems::g_prediction.pre( );
-		auto velocity = prestate.networked_velocity;
+		auto velocity = ctx.velocity;
 		velocity.z = 0.0f;
 
 		const auto speed = velocity.length_2d( );
@@ -2023,8 +2024,7 @@ namespace features::combat {
 	bool rage::should_stop_movement( const aim_context& ctx ) const
 	{
 		const auto& shared_ctx = g_shared.ctx( );
-		const auto& prestate = systems::g_prediction.pre( );
-		const auto velocity = prestate.networked_velocity;
+		const auto velocity = ctx.velocity;
 
 		if ( shared_ctx.weapon_type == cstypes::weapon_type::sniper && !ctx.is_scoped )
 		{

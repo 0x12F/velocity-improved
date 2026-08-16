@@ -44,7 +44,8 @@ namespace rendering {
 			xui::checkbox( "double tap", wg.doubletap );
 			xui::checkbox( "force shot in air", wg.force_shot_air );
 			xui::checkbox( "force shot on ground", wg.force_shot );
-			xui::checkbox( "extrapolation", lg.extrapolation);
+			xui::checkbox( "extrapolation", lg.extrapolation );
+			xui::slider_int( "max extrapolate", lg.max_extrapolate_ticks, 1, 16, "%d tick(s)" );
 			xui::slider_float( "max fov", wg.max_fov, 1.0f, 180.0f, "%.0f°" );
 
 			xui::slider_int( "hit chance", wg.hitchance, 25, 100, "%d%%" );
