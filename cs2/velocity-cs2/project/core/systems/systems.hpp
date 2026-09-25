@@ -475,7 +475,7 @@ namespace systems {
 		[[nodiscard]] result trace_to_entity( const math::vector3& start, const math::vector3& end, std::uintptr_t target_entity, const filter& filter ) const;
 		[[nodiscard]] filter make_filter( std::uintptr_t skip_entity, std::uintptr_t mask, std::uint8_t layer, int type ) const;
 		[[nodiscard]] filter make_filter( std::uintptr_t skip_entity, std::uintptr_t mask, std::uint8_t layer ) const;
-		[[nodiscard]] player_movement_filter make_player_movement_filter( std::uintptr_t entity, std::uintptr_t mask, std::uint8_t collision_group = 11 ) const;
+		[[nodiscard]] player_movement_filter make_player_movement_filter( std::uintptr_t entity, std::uint8_t collision_group = 11 ) const;
 		[[nodiscard]] tracing::result trace_player_bbox( const math::vector3& start, const math::vector3& end, const bbox_collision& bbox, const player_movement_filter& filter, std::uintptr_t movement_services ) const;
 
 		void setup_trace( trace_data* trace_data, const math::vector3& start, const math::vector3& delta, const filter& filter, int penetration_count, bool trace_world = false ) const;

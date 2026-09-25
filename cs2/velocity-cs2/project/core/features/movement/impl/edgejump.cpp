@@ -57,18 +57,7 @@ namespace features::movement {
 		const auto mins = memory::read<math::vector3>( collision + SCHEMA( "CCollisionProperty", "m_vecMins"_hash ) );
 		const auto maxs = memory::read<math::vector3>( collision + SCHEMA( "CCollisionProperty", "m_vecMaxs"_hash ) );
 
-		auto trace_mask{ 0ull };
-		{
-			const auto pawn_ptr = memory::read<std::uintptr_t>( movement_services + 56 );
-			trace_mask = memory::read<std::uintptr_t>( pawn_ptr + 0xd48 );
-
-			if ( !pawn_ptr || ( memory::read<std::uint32_t>( pawn_ptr + 0x3f8 ) & 0x10 ) )
-			{
-				trace_mask |= 0x20;
-			}
-		}
-
-		const auto filter = systems::g_tracing.make_player_movement_filter( local.pawn, trace_mask, 11 );
+		const auto filter = systems::g_tracing.make_player_movement_filter( local.pawn );
 		const auto sv_standable_normal = CONVAR ("sv_standable_normal")->get<float>( );
 
 		const auto check_edge = [ & ]( int ticks_ahead ) -> bool

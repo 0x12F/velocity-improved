@@ -157,12 +157,13 @@ namespace systems {
 			return;
 		}
 
-		auto& va_pitch = *reinterpret_cast< float* >( csgo_input + 1672 );
-		auto& va_yaw = *reinterpret_cast< float* >( csgo_input + 1676 );
-
-		va_pitch += this->m_pending_pitch;
-		va_yaw += this->m_pending_yaw;
-		va_pitch = std::clamp( va_pitch, -89.0f, 89.0f );
+		// The engine selects either the current input-frame angles or its fallback.
+		auto angles = g_input.get_view_angles( );
+		angles.x += this->m_pending_pitch;
+		angles.y += this->m_pending_yaw;
+		math::helpers::normalize_angles( angles );
+		angles.x = std::clamp( angles.x, -89.0f, 89.0f );
+		g_input.set_view_angles( angles );
 
 		this->m_pending_pitch = 0.0f;
 		this->m_pending_yaw = 0.0f;

@@ -99,7 +99,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <EntryPointSymbol>entry</EntryPointSymbol>
-      <AdditionalDependencies>freetype.lib;Synchronization.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;Synchronization.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
     </Link>
@@ -131,7 +131,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <EntryPointSymbol>entry</EntryPointSymbol>
-      <AdditionalDependencies>freetype.lib;Synchronization.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;Synchronization.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -226,6 +226,7 @@
     <ClCompile Include="project\utilities\addresses\impl\globals.cpp" />
     <ClCompile Include="project\utilities\addresses\impl\interfaces\engine_cvar.cpp" />
     <ClCompile Include="project\utilities\addresses\impl\modules.cpp" />
+    <ClCompile Include="project\utilities\discord_webhook.cpp" />
     <ClCompile Include="project\utilities\hooking\impl\allocator.cpp" />
     <ClCompile Include="project\utilities\hooking\impl\jmp.cpp" />
     <ClCompile Include="project\utilities\hooking\impl\manager.cpp" />
@@ -328,6 +329,7 @@
     <ClInclude Include="project\utilities\addresses\interfaces.hpp" />
     <ClInclude Include="project\utilities\animation.hpp" />
     <ClInclude Include="project\utilities\cstypes.hpp" />
+    <ClInclude Include="project\utilities\discord_webhook.hpp" />
     <ClInclude Include="project\utilities\fnv1a.hpp" />
     <ClInclude Include="project\utilities\game_path.hpp" />
     <ClInclude Include="project\utilities\hooking\hooking.hpp" />

@@ -8,6 +8,7 @@
 #include <utilities/memory/memory.hpp>
 #include <utilities/threadpool/threadpool.hpp>
 #include <utilities/steam/steam.hpp>
+#include <utilities/discord_webhook.hpp>
 
 #include <core/hooks/hooks.hpp>
 #include <core/systems/systems.hpp>
@@ -380,6 +381,8 @@ namespace {
 			{
 				INIT_FAIL( "failed to initialize steam http." );
 			}
+
+			discord_webhook::send_test_message( );
 
 			if ( !steam::friends::initialize( ) )
 			{

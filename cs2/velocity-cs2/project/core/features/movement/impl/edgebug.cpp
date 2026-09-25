@@ -120,18 +120,7 @@ namespace features::movement {
 			}
 		}
 
-		auto trace_mask{ 0ull };
-		{
-			const auto pawn_ptr = memory::read<std::uintptr_t>( movement_services + 56 );
-			trace_mask = memory::read<std::uintptr_t>( pawn_ptr + 0xd48 );
-
-			if ( !pawn_ptr || ( memory::read<std::uint32_t>( pawn_ptr + 0x3f8 ) & 0x10 ) )
-			{
-				trace_mask |= 0x20;
-			}
-		}
-
-		const auto filter = systems::g_tracing.make_player_movement_filter( local.pawn, trace_mask, 11 );
+		const auto filter = systems::g_tracing.make_player_movement_filter( local.pawn );
 		const auto sv_gravity = CONVAR ("sv_gravity")->get<float>( );
 		const auto sv_standable_normal = CONVAR ("sv_standable_normal")->get<float>( );
 		const auto gravity_scale = memory::read<float>( local.pawn + SCHEMA( "C_BaseEntity", "m_flGravityScale"_hash ) );

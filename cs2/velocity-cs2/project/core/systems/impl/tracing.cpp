@@ -125,9 +125,20 @@ namespace systems {
 		return filter;
 	}
 
-	tracing::player_movement_filter tracing::make_player_movement_filter( std::uintptr_t entity, std::uintptr_t mask, std::uint8_t collision_group ) const
+	tracing::player_movement_filter tracing::make_player_movement_filter( std::uintptr_t entity, std::uint8_t collision_group ) const
 	{
 		player_movement_filter filter{};
+		const auto collision = entity + SCHEMA( "C_BaseModelEntity", "m_Collision"_hash );
+		const auto attributes = collision + SCHEMA( "CCollisionProperty", "m_collisionAttribute"_hash );
+		auto mask = memory::read<std::uint64_t>( attributes + SCHEMA( "VPhysicsCollisionAttribute_t", "m_nInteractsWith"_hash ) );
+		const auto flags = memory::read<std::uint32_t>( entity + SCHEMA( "C_BaseEntity", "m_fFlags"_hash ) );
+		// Match the native movement filter's extra contents for flag bit 4.
+		constexpr auto extra_contents_flag = 0x10u;
+		constexpr auto extra_contents = 0x20ull;
+		if ( flags & extra_contents_flag )
+		{
+			mask |= extra_contents;
+		}
 
 		memory::call<void>(PATTERN (patterns::trace_filter_set_collision), &filter, entity, mask, static_cast< int >( collision_group ) );
 
@@ -138,7 +149,11 @@ namespace systems {
 	{
 		result result{};
 
-		memory::call<void>(PATTERN (patterns::trace_hull), movement_services + 1592, &result, &start, &end, &bbox, &filter );
+		// Native CCSPlayer_MovementServices callers pass their cached trace context.
+		constexpr std::uintptr_t trace_context_offset = 0x7b0;
+		// The native trace temporarily modifies the filter during its cache lookup.
+		auto mutable_filter = filter;
+		memory::call<void>(PATTERN (patterns::trace_hull), movement_services + trace_context_offset, &result, &start, &end, &bbox, &mutable_filter );
 
 		return result;
 	}

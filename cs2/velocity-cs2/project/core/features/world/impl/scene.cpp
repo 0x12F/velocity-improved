@@ -41,7 +41,7 @@ namespace features::world {
 
 		namespace shader_hash {
 			// Source 2's case-insensitive Murmur2 shader parameter hashes.
-			constexpr std::uint32_t wind_direction{ 0x2A416C12 };
+			constexpr std::uint32_t wind_direction{ 0xCDE54581 };
 			constexpr std::uint32_t wind_strength_frequency{ 0xEB0D997E };
 			constexpr std::uint32_t rain_exposure_to_sky{ 0x374C1B3C };
 			constexpr std::uint32_t rain_timer{ 0x2DBEE393 };
@@ -322,7 +322,8 @@ namespace features::world {
 		}
 
 		const auto count = memory::safe_read<int> (*object_data + 0x4);
-		const auto index = memory::safe_read<int> (*object_data + 0x30);
+		// +0x30 is the source index-array pointer; +0x38 is the output record index.
+		const auto index = memory::safe_read<int> (*object_data + 0x38);
 		if (!count || !index || *count <= 0 || *count > (1 << 20) ||
 			*index < 0 || *index > (1 << 22)) {
 			return;

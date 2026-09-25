@@ -42,6 +42,11 @@ namespace features::combat {
 
 		this->m_target = {};
 
+		if ( !config.aimbot.value && !config.triggerbot.value )
+		{
+			return;
+		}
+
 		if ( !g_shared.can_shoot( cmd, local.controller, false ) )
 		{
 			return;
@@ -222,40 +227,23 @@ namespace features::combat {
 
 	legit::scan_point legit::scan_player( std::uintptr_t pawn, shared::lagcomp::record* record, const math::vector3& shoot_position, const math::vector3& view_angles, const settings::combat::legitbot::weapon_group& config, const systems::local::snapshot& local ) const
 	{
-		struct hitbox_entry
-		{
-			std::size_t cfg_index;
-			std::uint32_t bone_id;
-			int hitgroup;
-		};
-
-		constexpr std::array<hitbox_entry, 7> hitbox_map
-		{ {
-			{ 0, cstypes::bone_ids::head,             1 },
-			{ 1, cstypes::bone_ids::spine_3,          2 },
-			{ 2, cstypes::bone_ids::spine_2,          3 },
-			{ 3, cstypes::bone_ids::left_shoulder,    4 },
-			{ 3, cstypes::bone_ids::right_shoulder,   5 },
-			{ 4, cstypes::bone_ids::left_knee,        6 },
-			{ 4, cstypes::bone_ids::right_knee,       7 },
-		} };
-
 		const auto pen_ctx = g_shared.pen( ).prepare_target( pawn, record );
-		const auto skeleton = g_shared.lc( ).get_skeleton( *record );
+		const auto& skeleton = record->bones;
 
 		scan_point best{};
 		best.fov = 999.0f;
 		best.damage = -1.0f;
 
-		for ( const auto& [cfg_idx, bone_id, hitgroup] : hitbox_map )
+		for ( const auto& hitbox : pen_ctx.hitboxes )
 		{
-			if ( !config.hitboxes.values[ cfg_idx ] )
+			const auto cfg_idx = hitgroup_to_cfg( systems::g_hitboxes.hitgroup_from_hitbox( hitbox.index ) );
+			if ( cfg_idx < 0 || !config.hitboxes.values[ cfg_idx ] )
 			{
 				continue;
 			}
 
-			const auto bone_index = static_cast< std::size_t >( bone_id );
-			if ( bone_index >= 27 )
+			const auto bone_index = hitbox.bone;
+			if ( bone_index < 0 || bone_index >= record->bone_count )
 			{
 				continue;
 			}
@@ -266,7 +254,9 @@ namespace features::combat {
 				continue;
 			}
 
-			const auto aim = math::helpers::calculate_angle( shoot_position, bone.position );
+			const auto center = ( hitbox.mins + hitbox.maxs ) * 0.5f;
+			const auto position = bone.position + ( hitbox.translation_only ? center : bone.rotation.rotate_vector( center ) );
+			const auto aim = math::helpers::calculate_angle( shoot_position, position );
 			const auto fov = math::helpers::angle_distance( view_angles, aim );
 
 			if ( fov > config.fov.value )
@@ -275,7 +265,7 @@ namespace features::combat {
 			}
 
 			shared::penetration::result pen{};
-			if ( !g_shared.pen( ).run( shoot_position, bone.position, pen_ctx, local.pawn, local.team, pen ) )
+			if ( !g_shared.pen( ).run( shoot_position, position, pen_ctx, local.pawn, local.team, pen ) )
 			{
 				continue;
 			}
@@ -294,7 +284,7 @@ namespace features::combat {
 			const auto is_better = ( pen.damage > best.damage ) || ( pen.damage == best.damage && fov < best.fov );
 			if ( is_better )
 			{
-				best.position = bone.position;
+				best.position = position;
 				best.damage = pen.damage;
 				best.fov = fov;
 				best.hitgroup = pen.hitgroup;
@@ -512,13 +502,13 @@ namespace features::combat {
 					continue;
 				}
 
-				const auto skeleton = g_shared.lc( ).get_skeleton( *rec );
+				const auto& skeleton = rec->bones;
 
 				if ( seed_mode )
 				{
 					for ( const auto& hb : hitbox_set )
 					{
-						if ( hb.bone < 0 || hb.bone >= 28 )
+						if ( hb.bone < 0 || hb.bone >= rec->bone_count )
 						{
 							continue;
 						}
@@ -578,7 +568,7 @@ namespace features::combat {
 
 					for ( const auto& entry : hitbox_set )
 					{
-						if ( entry.bone < 0 || entry.bone >= 28 )
+						if ( entry.bone < 0 || entry.bone >= rec->bone_count )
 						{
 							continue;
 						}
@@ -665,7 +655,7 @@ namespace features::combat {
 
 		if ( !seed_mode )
 		{
-			const auto skeleton = g_shared.lc( ).get_skeleton( *hit_record );
+			const auto& skeleton = hit_record->bones;
 			const auto game_scene_node = memory::read<std::uintptr_t>( hit_pawn + SCHEMA( "C_BaseEntity", "m_pGameSceneNode"_hash ) );
 			const auto hitbox_set = systems::g_hitboxes.query( game_scene_node );
 
@@ -680,11 +670,9 @@ namespace features::combat {
 				}
 			}
 
-			if ( best_hb && best_hb->bone >= 0 && best_hb->bone < 28 )
+			if ( best_hb && best_hb->bone >= 0 && best_hb->bone < hit_record->bone_count )
 			{
-				hit_record->apply( );
 				const auto hc = g_shared.calculate_hitchance( shoot_position, corrected_angles, *best_hb, skeleton[ best_hb->bone ], ctx.inaccuracy, ctx.spread );
-				hit_record->restore( );
 
 				const auto min_hc = static_cast< float >( config.trigger_hitchance.value ) / 100.0f;
 				if ( hc < min_hc && !g_shared.is_max_accuracy( ctx.inaccuracy ) )

@@ -133,8 +133,10 @@ namespace systems {
 		const auto cmd_ptr = reinterpret_cast< std::uintptr_t >( cmd );
 		const auto old_slot = memory::safe_read<std::uintptr_t>( addresses::globals::source2client_prediction + 56 ).value_or( 0 );
 		const auto pred_state = memory::safe_read<std::uintptr_t>( addresses::globals::prediction_state ).value_or( 0 );
+		const auto effects_slot = PATTERN( patterns::prediction_suppress_effects );
+		const auto effects = effects_slot ? memory::safe_read<std::uintptr_t>( effects_slot ).value_or( 0 ) : 0;
 
-		if ( !global_vars || !pred_state )
+		if ( !global_vars || !pred_state || !effects )
 		{
 			return false;
 		}
@@ -155,6 +157,9 @@ namespace systems {
 		}
 
 		detail::state_guard guard;
+		// CPredictionSuppressEffects caches this separately from the prediction slot.
+		constexpr std::uintptr_t suppress_effects_offset = 0x14;
+		guard.save<bool>( effects + suppress_effects_offset );
 
 		guard.save<float>( global_vars + 48 );
 		guard.save<float>( global_vars + 52 );
@@ -297,9 +302,10 @@ namespace systems {
 		}
 
 		{
+			memory::write<bool>( effects + suppress_effects_offset, true );
 			if ( old_slot )
 			{
-				memory::write<std::uint8_t>( old_slot + 140, 0 );
+				memory::write<std::uint8_t>( old_slot + 140, 1 );
 			}
 
 			const auto next_tick = memory::read<int>( local.controller + SCHEMA( "CBasePlayerController", "m_nTickBase"_hash ) ) + 1;

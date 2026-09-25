@@ -49,6 +49,15 @@ namespace features::combat {
 			return;
 		}
 
+		const auto enabled = is_knife ? settings::g_combat.m_knifebot.enabled
+			: is_taser ? settings::g_combat.m_zeusbot.enabled
+			: settings::g_combat.m_ragebot.enabled;
+		if ( !enabled )
+		{
+			this->m_revolver_cock_ticks = 0;
+			return;
+		}
+
 		auto aim_ctx = this->build_context( cmd, local );
 
 		if ( is_knife )

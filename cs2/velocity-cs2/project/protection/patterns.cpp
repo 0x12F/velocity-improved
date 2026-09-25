@@ -4,9 +4,9 @@
 namespace patterns {
 
 	const ::protection::addresses::address_t& add_entity = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:90200000488D05*????????48890733D2+78~"),
+		::protection::addresses::hash("client.dll:4889742410574883EC2041B9FF7F0000418BC04123C1488BF24183F8FF488BF9440F45C84181F90040000073??FF8120210000"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:90200000488D05*????????48890733D2+78~");
+		"client.dll:4889742410574883EC2041B9FF7F0000418BC04123C1488BF24183F8FF488BF9440F45C84181F90040000073??FF8120210000");
 
 	const ::protection::addresses::address_t& base_fire_guns_get_inaccuracy = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:>E8????????84C00F84C6FEFFFF"),
@@ -39,9 +39,9 @@ namespace patterns {
 		"client.dll:85D20F88????????48894C24??5556");
 
 	const ::protection::addresses::address_t& draw_legs = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:4055535641564157488DAC24????????4881EC????????F20F1042??"),
+		::protection::addresses::hash("client.dll:4C8BDC555356574157498DAB78FBFFFF"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:4055535641564157488DAC24????????4881EC????????F20F1042??");
+		"client.dll:4C8BDC555356574157498DAB78FBFFFF");
 
 	const ::protection::addresses::address_t& draw_overhead = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:40534883EC??488BD983FA??75??"),
@@ -69,9 +69,9 @@ namespace patterns {
 		"client.dll:488BD94533C0488B0D????????BA01000000>E8????????8B0B");
 
 	const ::protection::addresses::address_t& dynamic_light_manager = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:488B0D*????????4885C97408488BD7E8????????E8????????BAFFFFFFFF"),
+		::protection::addresses::hash("client.dll:488BD94533C0488B0D*????????BA01000000E8????????8B0B"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:488B0D*????????4885C97408488BD7E8????????E8????????BAFFFFFFFF");
+		"client.dll:488BD94533C0488B0D*????????BA01000000E8????????8B0B");
 
 	const ::protection::addresses::address_t& dynamic_light_time = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:40534883EC20488BD985D2741A488B05????????F30F104830"),
@@ -79,9 +79,9 @@ namespace patterns {
 		"client.dll:40534883EC20488BD985D2741A488B05????????F30F104830");
 
 	const ::protection::addresses::address_t& engine_client_cmd = ADDRESS_IMPL(
-		::protection::addresses::hash("engine2.dll:488BC448895808488968104889701857415641574881EC700100000F2970D8410FB6E98D42FC4D8BF88BFA4C8BF183F801763EBAFFFFFFFF488D0D????????E8????????4885C0750B"),
+		::protection::addresses::hash("engine2.dll:488BC4488958??488968??488970??57415641574881EC????????0F2970??410FB6E9"),
 		::protection::addresses::address_type::pattern,
-		"engine2.dll:488BC448895808488968104889701857415641574881EC700100000F2970D8410FB6E98D42FC4D8BF88BFA4C8BF183F801763EBAFFFFFFFF488D0D????????E8????????4885C0750B");
+		"engine2.dll:488BC4488958??488968??488970??57415641574881EC????????0F2970??410FB6E9");
 
 	const ::protection::addresses::address_t& entity_list = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:488B0D*????????8BFBC1EB0E"),
@@ -89,14 +89,14 @@ namespace patterns {
 		"client.dll:488B0D*????????8BFBC1EB0E");
 
 	const ::protection::addresses::address_t& filesystem_close = ADDRESS_IMPL(
-		::protection::addresses::hash("filesystem_stdio.dll:>E8????????FFD34C8BA42498000000"),
+		::protection::addresses::hash("filesystem_stdio.dll:>E8????????FFD34C8D5C2460498B5B40"),
 		::protection::addresses::address_type::pattern,
-		"filesystem_stdio.dll:>E8????????FFD34C8BA42498000000");
+		"filesystem_stdio.dll:>E8????????FFD34C8D5C2460498B5B40");
 
 	const ::protection::addresses::address_t& find_hud_element = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:>E8????????4885C0488D751C"),
+		::protection::addresses::hash("client.dll:40534883EC20488B05????????488BD94885C074??48895C2438"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:>E8????????4885C0488D751C");
+		"client.dll:40534883EC20488B05????????488BD94885C074??48895C2438");
 
 	const ::protection::addresses::address_t& frame_input_ring_base = ADDRESS_IMPL(
 		::protection::addresses::hash("engine2.dll:488D05*????????0F1004C8"),
@@ -169,14 +169,14 @@ namespace patterns {
 		"client.dll:488B0D*????????488D3452~");
 
 	const ::protection::addresses::address_t& generate_primitives = ADDRESS_IMPL(
-		::protection::addresses::hash("scenesystem.dll:488D05*????????488907488B7C2448+20~"),
+		::protection::addresses::hash("scenesystem.dll:488BC4488958204C8940184889501048894808"),
 		::protection::addresses::address_type::pattern,
-		"scenesystem.dll:488D05*????????488907488B7C2448+20~");
+		"scenesystem.dll:488BC4488958204C8940184889501048894808");
 
 	const ::protection::addresses::address_t& get_aim_punch = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:140000488D542420>E8????????F30F1015????????"),
+		::protection::addresses::hash("client.dll:150000488D542420>E8????????F30F1015"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:140000488D542420>E8????????F30F1015????????");
+		"client.dll:150000488D542420>E8????????F30F1015");
 
 	const ::protection::addresses::address_t& get_bone_index = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:448B42??488B12E9"),
@@ -204,9 +204,9 @@ namespace patterns {
 		"client.dll:40555641564881EC20010000");
 
 	const ::protection::addresses::address_t& get_spread = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:4883EC??486391"),
+		::protection::addresses::hash("client.dll:486391001A0000488B818803000085D278??4883FA0273??F30F10849050070000"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:4883EC??486391");
+		"client.dll:486391001A0000488B818803000085D278??4883FA0273??F30F10849050070000");
 
 	const ::protection::addresses::address_t& get_net_channel = ADDRESS_IMPL(
 		::protection::addresses::hash("engine2.dll:4C8B05????????4D85C07410"),
@@ -244,9 +244,9 @@ namespace patterns {
 		"client.dll:>E8????????418B5F10");
 
 	const ::protection::addresses::address_t& get_world_group_id = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:>E8????????F3410F10B674FFFFFF"),
+		::protection::addresses::hash("client.dll:488B41304885C0740D488B40108B4838488BC2890AC3"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:>E8????????F3410F10B674FFFFFF");
+		"client.dll:488B41304885C0740D488B40108B4838488BC2890AC3");
 
 	const ::protection::addresses::address_t& global_vars = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:488B05*????????448B4044"),
@@ -359,9 +359,9 @@ namespace patterns {
 		"client.dll:A8000000488D05*????????4C89742420+78~");
 
 	const ::protection::addresses::address_t& parse_report_hit = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:48895C24184889742420574883EC20488D058AE04A01"),
+		::protection::addresses::hash("client.dll:48895C24184889742420574883EC20488D05D2935B01"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:48895C24184889742420574883EC20488D058AE04A01");
+		"client.dll:48895C24184889742420574883EC20488D05D2935B01");
 
 	const ::protection::addresses::address_t& particle_create_effect = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:4C8BDC534881EC90000000F20F1005"),
@@ -399,24 +399,24 @@ namespace patterns {
 		"client.dll:488B1D*????????488BD34C8B81");
 
 	const ::protection::addresses::address_t& post_network_data_received = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:48895C241048894C24085556574154415541564157488DAC24B0FCFFFF4881EC500400004C8BE9488B0D????????488B01FF90B8000000488BC8488B10FF5238498BCD8945848BF0E8????????498BCDE8????????"),
+		::protection::addresses::hash("client.dll:48895C241048894C24085556574154415541564157488DAC2400FDFFFF4881EC"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:48895C241048894C24085556574154415541564157488DAC24B0FCFFFF4881EC500400004C8BE9488B0D????????488B01FF90B8000000488BC8488B10FF5238498BCD8945848BF0E8????????498BCDE8????????");
+		"client.dll:48895C241048894C24085556574154415541564157488DAC2400FDFFFF4881EC");
 
 	const ::protection::addresses::address_t& prediction_finish_move = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:>E8????????488B8398010000"),
+		::protection::addresses::hash("client.dll:>E8????????488B8798010000"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:>E8????????488B8398010000");
+		"client.dll:>E8????????488B8798010000");
 
 	const ::protection::addresses::address_t& prediction_player = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:488B4338488905*????????4183FC03"),
+		::protection::addresses::hash("client.dll:488905*????????488D15????????83FD"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:488B4338488905*????????4183FC03");
+		"client.dll:488905*????????488D15????????83FD");
 
 	const ::protection::addresses::address_t& prediction_process_movement = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:8BC5498BD5488BCB>E8????????488B034C8BC5"),
+		::protection::addresses::hash("client.dll:>E8????????FFD3488B07"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:8BC5498BD5488BCB>E8????????488B034C8BC5");
+		"client.dll:>E8????????FFD3488B07");
 
 	const ::protection::addresses::address_t& prediction_reset_pawn = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:488B114885D274??806A????75??488B05????????8B4044894218"),
@@ -438,10 +438,15 @@ namespace patterns {
 		::protection::addresses::address_type::pattern,
 		"client.dll:8B81????????84D274??FFC08981????????C383E8018981????????75??80B9");
 
-	const ::protection::addresses::address_t& prediction_setup_move = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:D5488BCD458B4044>E8????????488B034C8BC5"),
+	const ::protection::addresses::address_t& prediction_suppress_effects = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:488B0D*????????498B542438488B010FB6928C000000FF10"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:D5488BCD458B4044>E8????????488B034C8BC5");
+		"client.dll:488B0D*????????498B542438488B010FB6928C000000FF10");
+
+	const ::protection::addresses::address_t& prediction_setup_move = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:>E8????????488B074D8BC6"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:>E8????????488B074D8BC6");
 
 	const ::protection::addresses::address_t& prediction_state = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:488B0D*????????33D28B5B38"),
@@ -464,19 +469,19 @@ namespace patterns {
 		"client.dll:>E8????????4D8BC58BD3");
 
 	const ::protection::addresses::address_t& remove_entity = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:90200000488D05*????????48890733D2+80~"),
+		::protection::addresses::hash("client.dll:4889742410574883EC2041B9FF7F0000418BC04123C1488BF24183F8FF488BF9440F45C84181F90040000073??FF8920210000"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:90200000488D05*????????48890733D2+80~");
+		"client.dll:4889742410574883EC2041B9FF7F0000418BC04123C1488BF24183F8FF488BF9440F45C84181F90040000073??FF8920210000");
 
 	const ::protection::addresses::address_t& render_crosshair = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:488BC844887C2430>E8????????84C00F849B000000"),
+		::protection::addresses::hash("client.dll:48895C2408574883EC20488BD9E8????????4885C0"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:488BC844887C2430>E8????????84C00F849B000000");
+		"client.dll:48895C2408574883EC20488BD9E8????????4885C0");
 
 	const ::protection::addresses::address_t& render_decals = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:B001488BD7498BCD>E8????????BAFFFFFFFF"),
+		::protection::addresses::hash("client.dll:44884C24??55534154"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:B001488BD7498BCD>E8????????BAFFFFFFFF");
+		"client.dll:44884C24??55534154");
 
 	const ::protection::addresses::address_t& render_game_system_storage = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:488B0D*????????418BD6E8????????418B5F"),
@@ -494,9 +499,9 @@ namespace patterns {
 		"client.dll:5C24284889442420>E8????????488B5C2460");
 
 	const ::protection::addresses::address_t& render_view = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:4C8BDC535556574881ECD8000000488D05????????48C7442448????????"),
+		::protection::addresses::hash("client.dll:4C8BDC53555741554881ECD800000048"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:4C8BDC535556574881ECD8000000488D05????????48C7442448????????");
+		"client.dll:4C8BDC53555741554881ECD800000048");
 
 	const ::protection::addresses::address_t& resource_system_load = ADDRESS_IMPL(
 		::protection::addresses::hash("resourcesystem.dll:48895C24??48896C24??48897424??574883EC??488B01"),
@@ -534,9 +539,9 @@ namespace patterns {
 		"engine2.dll:>E8????????440F289424");
 
 	const ::protection::addresses::address_t& set_shader_param = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:>E8????????0FB64325"),
+		::protection::addresses::hash("client.dll:BA7E990DEB488BCB660F7F45F0>E8????????F30F104DD0"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:>E8????????0FB64325");
+		"client.dll:BA7E990DEB488BCB660F7F45F0>E8????????F30F104DD0");
 
 	const ::protection::addresses::address_t& set_shader_param_i = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:48896C24??48897424??574883EC20660F6ECA418BF0"),
@@ -554,9 +559,9 @@ namespace patterns {
 		"client.dll:>E8????????4C39B5C8140000");
 
 	const ::protection::addresses::address_t& simulation_player = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:4C3905*????????410F94C6"),
+		::protection::addresses::hash("client.dll:4C3905*????????400F94C575??488D4B50"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:4C3905*????????410F94C6");
+		"client.dll:4C3905*????????400F94C575??488D4B50");
 
 	const ::protection::addresses::address_t& sort_primitives = ADDRESS_IMPL(
 		::protection::addresses::hash("scenesystem.dll:4585C90F84????????5556574883EC30"),
@@ -589,9 +594,9 @@ namespace patterns {
 		"client.dll:40535741564883EC508B8424");
 
 	const ::protection::addresses::address_t& trace_bullet_data_init = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:48895C24??48896C24??48897424??57415641574883EC??F20F1002"),
+		::protection::addresses::hash("client.dll:48895C240848896C2410488974241857415641574883EC40F20F1002"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:48895C24??48896C24??48897424??57415641574883EC??F20F1002");
+		"client.dll:48895C240848896C2410488974241857415641574883EC40F20F1002");
 
 	const ::protection::addresses::address_t& trace_bullet_free = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:>E8????????3BDE744E"),
@@ -614,14 +619,14 @@ namespace patterns {
 		"client.dll:000041B800010000>E8????????4C397F38");
 
 	const ::protection::addresses::address_t& trace_hull = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:>E8????????0F2F754C"),
+		::protection::addresses::hash("client.dll:48897424185557415441554156488DAC24????????4881ECA00100004C8BB5"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:>E8????????0F2F754C");
+		"client.dll:48897424185557415441554156488DAC24????????4881ECA00100004C8BB5");
 
 	const ::protection::addresses::address_t& trace_ray = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:48895424??48894C24??5553565741564157488DAC24????????B8E8240000"),
+		::protection::addresses::hash("client.dll:48895424??48894C24??55535657415441564157488DAC24????????B8"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:48895424??48894C24??5553565741564157488DAC24????????B8E8240000");
+		"client.dll:48895424??48894C24??55535657415441564157488DAC24????????B8");
 
 	const ::protection::addresses::address_t& trace_ray_entity = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:44246848897C2420>E8????????488B3D????????"),
@@ -629,9 +634,9 @@ namespace patterns {
 		"client.dll:44246848897C2420>E8????????488B3D????????");
 
 	const ::protection::addresses::address_t& update_fov_sensitivity = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:48895C24??48896C24??48897424??574883EC20488BB9????????488BF1"),
+		::protection::addresses::hash("client.dll:48896C24104889742418574883EC30488BB9????????488BF1488BCF48895C2440"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:48895C24??48896C24??48897424??574883EC20488BB9????????488BF1");
+		"client.dll:48896C24104889742418574883EC30488BB9????????488BF1488BCF48895C2440");
 
 	const ::protection::addresses::address_t& utl_vector_push = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:>E8????????4C8BD0458B4A10"),
@@ -654,9 +659,9 @@ namespace patterns {
 		"client.dll:28F3440F11442420>E8????????488D85B0000000");
 
 	const ::protection::addresses::address_t& weapon_get_entity_index = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:>E8????????448B4500"),
+		::protection::addresses::hash("client.dll:488D54243C498BCE>E8????????8B4C243C814E1000040000894E68"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:>E8????????448B4500");
+		"client.dll:488D54243C498BCE>E8????????8B4C243C814E1000040000894E68");
 
 	const ::protection::addresses::address_t& weapon_get_model_path = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:48895C2410564883EC20488B1D????????"),
@@ -699,9 +704,9 @@ namespace patterns {
 		"client.dll:>E8????????498D8C2408060000");
 
 	const ::protection::addresses::address_t& weapon_update_skin = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:4055534157488DAC2400FEFFFF4881EC00030000440FB6FA488BD9"),
+		::protection::addresses::hash("client.dll:4055534157488DAC2400FEFFFF4881EC00030000"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:4055534157488DAC2400FEFFFF4881EC00030000440FB6FA488BD9");
+		"client.dll:4055534157488DAC2400FEFFFF4881EC00030000");
 
 	const ::protection::addresses::address_t& econ_item_view_set_attribute = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:40534883EC20488BD94881C108020000"),
