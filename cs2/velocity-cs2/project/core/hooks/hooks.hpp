@@ -50,6 +50,7 @@ namespace hooks {
 		static std::uintptr_t __fastcall level_shutdown( std::uintptr_t a1 );
 		static void __fastcall read_frame_input( std::uintptr_t a1, std::uint32_t a2 );
 		static void __fastcall process_input_event( std::uintptr_t thisptr, int slot, float frametime );
+		static bool __fastcall prediction_effects_suppressed( std::uintptr_t thisptr );
 		static std::uintptr_t __fastcall render_decals( std::uintptr_t render_context, std::uintptr_t** render_view, bool pass_flag_a, bool pass_flag_b );
 		static void __fastcall render_smoke( std::uintptr_t a1, std::uintptr_t a2, int a3, int a4, std::uintptr_t a5, std::uintptr_t a6 );
 		static std::uintptr_t __fastcall render_smoke_map( std::uintptr_t thisptr, std::size_t size, std::uintptr_t* out_ptr );
@@ -96,6 +97,7 @@ namespace hooks {
 		inline static hooking::jmp m_level_shutdown{};
 		inline static hooking::jmp m_read_frame_input{};
 		inline static hooking::jmp m_process_input_event{};
+		inline static hooking::jmp m_prediction_effects_suppressed{};
 		inline static hooking::jmp m_render_decals{};
 		inline static hooking::jmp m_render_smoke{};
 		inline static hooking::jmp m_render_smoke_map{};

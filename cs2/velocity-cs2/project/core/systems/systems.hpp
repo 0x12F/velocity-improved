@@ -271,8 +271,10 @@ namespace systems {
 		bool simulate( input::usercmd* cmd, const systems::local::snapshot& local, const std::function<void( )>& fn );
 
 		[[nodiscard]] const state& pre( ) const { return this->m_prestate; }
+		[[nodiscard]] bool is_simulating( ) const { return m_simulating; }
 
 	private:
+		inline static thread_local bool m_simulating{};
 		state m_prestate{};
 		std::mutex m_simulation_mtx{};
 	};

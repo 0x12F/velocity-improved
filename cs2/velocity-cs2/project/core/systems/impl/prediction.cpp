@@ -157,6 +157,7 @@ namespace systems {
 		}
 
 		detail::state_guard guard;
+		guard.save<bool>( reinterpret_cast< std::uintptr_t >( &m_simulating ) );
 		// CPredictionSuppressEffects caches this separately from the prediction slot.
 		constexpr std::uintptr_t suppress_effects_offset = 0x14;
 		guard.save<bool>( effects + suppress_effects_offset );
@@ -303,6 +304,7 @@ namespace systems {
 
 		{
 			memory::write<bool>( effects + suppress_effects_offset, true );
+			m_simulating = true;
 			if ( old_slot )
 			{
 				memory::write<std::uint8_t>( old_slot + 140, 1 );

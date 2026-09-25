@@ -52,14 +52,13 @@ namespace features::combat {
 			return;
 		}
 
-		auto shoot_position = g_shared.get_interpolated_shoot_position( local.pawn, false );
+		// Legit aiming follows the current view, independently of rage's predicted history.
+		const auto shoot_position = g_shared.get_eye_position( local.pawn );
 		ctx.spread = g_shared.get_spread( );
 		ctx.inaccuracy = g_shared.get_inaccuracy( true );
 
 		systems::g_prediction.simulate( cmd, local, [ & ]
 			{
-				shoot_position = g_shared.get_interpolated_shoot_position( local.pawn, false );
-
 				ctx.spread = g_shared.get_spread( );
 				ctx.inaccuracy = g_shared.get_inaccuracy( true );
 			} );
@@ -81,7 +80,18 @@ namespace features::combat {
 			}
 		}
 
-		if ( !g_shared.can_shoot( cmd, local.controller ) )
+		const auto can_shoot = g_shared.can_shoot( cmd, local.controller );
+		static ULONGLONG next_diagnostic_time{};
+		const auto now = GetTickCount64( );
+		if ( now >= next_diagnostic_time )
+		{
+			next_diagnostic_time = now + 5000;
+			logging::console::print( xs( "[legit] aim={} trigger={} target={} can_shoot={} eye=({:.1f},{:.1f},{:.1f}) fov={}" ),
+				config.aimbot.value, config.triggerbot.value, this->m_target.has_target( ), can_shoot,
+				shoot_position.x, shoot_position.y, shoot_position.z, config.fov.value );
+		}
+
+		if ( !can_shoot )
 		{
 			return;
 		}

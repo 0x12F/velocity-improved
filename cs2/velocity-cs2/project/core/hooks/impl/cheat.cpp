@@ -55,6 +55,7 @@ namespace hooks {
 			{ &m_level_shutdown, &level_shutdown, xs ("level_shutdown"), PATTERN (patterns::level_shutdown) },
 			{ &m_read_frame_input, &read_frame_input, xs ("read_frame_input"), PATTERN (patterns::read_frame_input) },
 			{ &m_process_input_event, &process_input_event, xs ("process_input_event"), PATTERN (patterns::process_input_event) },
+			{ &m_prediction_effects_suppressed, &prediction_effects_suppressed, xs ("prediction_effects_suppressed"), PATTERN (patterns::prediction_effects_suppressed) },
 			{ &m_render_decals, &render_decals, xs ("render_decals"), PATTERN (patterns::render_decals) },
 			{ &m_render_smoke, &render_smoke, xs ("render_smoke"), PATTERN (patterns::render_smoke) },
 			{ &m_draw_flash_effect, &draw_flash_effect, xs ("draw_flash_effect"), PATTERN (patterns::draw_flash_effect) },
@@ -117,6 +118,7 @@ namespace hooks {
 		m_level_initialization.reset( );
 		m_read_frame_input.reset( );
 		m_process_input_event.reset( );
+		m_prediction_effects_suppressed.reset( );
 		m_render_decals.reset( );
 		m_render_smoke.reset( );
 		m_render_smoke_map.reset( );
@@ -895,8 +897,24 @@ namespace hooks {
 
 	void __fastcall cheat::process_input_event( std::uintptr_t csgo_input, int slot, float frametime )
 	{
-		systems::g_legit_input.on_process_input_event( csgo_input, slot );
 		m_process_input_event.call<void>( csgo_input, slot, frametime );
+		// Apply queued aim to the frame the engine just created, not its predecessor.
+		systems::g_legit_input.on_process_input_event( csgo_input, slot );
+	}
+
+	bool __fastcall cheat::prediction_effects_suppressed( std::uintptr_t thisptr )
+	{
+		// Native effect scopes can bypass the cached flag during speculative movement.
+		if ( systems::g_prediction.is_simulating( ) )
+		{
+			return true;
+		}
+
+		// Preserve this leaf getter directly: its short branch lands inside the patch.
+		constexpr std::uintptr_t effect_scope_depth_offset = 0x10;
+		constexpr std::uintptr_t suppress_effects_offset = 0x14;
+		return memory::read<int>( thisptr + effect_scope_depth_offset ) <= 0
+			&& memory::read<bool>( thisptr + suppress_effects_offset );
 	}
 
 	std::uintptr_t __fastcall cheat::render_decals( std::uintptr_t render_context, std::uintptr_t** render_view, bool pass_flag_a, bool pass_flag_b )

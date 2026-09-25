@@ -443,6 +443,11 @@ namespace patterns {
 		::protection::addresses::address_type::pattern,
 		"client.dll:488B0D*????????498B542438488B010FB6928C000000FF10");
 
+	const ::protection::addresses::address_t& prediction_effects_suppressed = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:837910007E0332C0C30FB64114C3"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:837910007E0332C0C30FB64114C3");
+
 	const ::protection::addresses::address_t& prediction_setup_move = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:>E8????????488B074D8BC6"),
 		::protection::addresses::address_type::pattern,

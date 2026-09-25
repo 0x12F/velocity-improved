@@ -93,6 +93,7 @@ namespace patterns {
 	extern const ::protection::addresses::address_t& prediction_set_pawn;
 	extern const ::protection::addresses::address_t& prediction_set_state;
 	extern const ::protection::addresses::address_t& prediction_suppress_effects;
+	extern const ::protection::addresses::address_t& prediction_effects_suppressed;
 	extern const ::protection::addresses::address_t& prediction_setup_move;
 	extern const ::protection::addresses::address_t& prediction_state;
 	extern const ::protection::addresses::address_t& prepare_scene_material;
