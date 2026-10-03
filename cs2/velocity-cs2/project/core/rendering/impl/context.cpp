@@ -1,4 +1,5 @@
 #include <pch/pch.hpp>
+#include <core/features/changer/runtime.hpp>
 #include <core/systems/systems.hpp>
 #include <core/features/features.hpp>
 
@@ -41,6 +42,7 @@ namespace rendering {
 		this->create_rtv( swap_chain );
 		this->setup_zdraw( this->m_window );
 
+		features::changer::runtime::initialize_preview(this->m_device, this->m_context);
 		g_menu.initialize_graphics( );
 		this->try_bind_ui_assets( );
 
@@ -83,6 +85,7 @@ namespace rendering {
 		}
 
 		this->try_bind_ui_assets( );
+		features::changer::runtime::tick_render();
 		features::misc::g_dlight.on_present( );
 
 		m_context->OMSetRenderTargets( 1, &this->m_rtv, nullptr );
@@ -115,6 +118,9 @@ namespace rendering {
 			g_menu.draw( );
 		}
 		xdraw::end_frame( );
+		features::changer::publish_configuration();
+		features::changer::runtime::set_interactive_edit(g_menu.is_open() &&
+			(xui::ctx().active_slider != 0 || xui::ctx().active_text_input != 0 || xui::ctx().active_slider_edit != 0));
 	}
 
 	void context::on_resize_buffers( )

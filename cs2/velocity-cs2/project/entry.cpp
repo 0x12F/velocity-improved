@@ -1,4 +1,5 @@
 #include <pch/pch.hpp>
+#include <core/features/changer/runtime.hpp>
 
 #include <cstdio>
 
@@ -434,11 +435,6 @@ namespace {
 			{
 				INIT_FAIL( "failed to initialize vpk parse system." );
 			}
-
-			if ( !systems::g_model_preview.initialize( ) )
-			{
-				INIT_FAIL( "failed to initialize model preview system." );
-			}
 		}
 
 		diag::step( "stage: econ" );
@@ -447,6 +443,11 @@ namespace {
 			{
 				INIT_FAIL( "failed to initialize econ item system." );
 			}
+		}
+
+		if (!features::changer::runtime::initialize())
+		{
+			INIT_FAIL("failed to initialize skinchanger.");
 		}
 
 		diag::step( "stage: hooks" );
@@ -558,6 +559,7 @@ extern "C" int __stdcall entry( HMODULE module_handle, DWORD reason, LPVOID rese
 		systems::events::shutdown( );
 		hooks::utility::shutdown( );
 		hooks::cheat::shutdown( );
+		features::changer::runtime::shutdown();
 		CoUninitialize( );
 #endif
 

@@ -415,7 +415,7 @@ namespace features::combat {
 			float armor_ratio{};
 		};
 
-		[[nodiscard]] aim_context build_context( systems::input::usercmd* cmd, const systems::local::snapshot& local ) const;
+		[[nodiscard]] aim_context build_context( const systems::local::snapshot& local ) const;
 		[[nodiscard]] std::optional<stop_prediction> predict_stop( const aim_context& ctx, const math::vector3& current_eye, const systems::local::snapshot& local ) const;
 		[[nodiscard]] std::vector<candidate> gather_candidates( const systems::local::snapshot& local, float max_distance_sq = 0.0f ) const;
 

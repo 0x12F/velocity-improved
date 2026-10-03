@@ -94,9 +94,9 @@ namespace patterns {
 		"filesystem_stdio.dll:>E8????????FFD34C8D5C2460498B5B40");
 
 	const ::protection::addresses::address_t& find_hud_element = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:40534883EC20488B05????????488BD94885C074??48895C2438"),
+		::protection::addresses::hash("client.dll:40534883EC??488B05????????488BD94885C074??48895C24"),
 		::protection::addresses::address_type::pattern,
-		"client.dll:40534883EC20488B05????????488BD94885C074??48895C2438");
+		"client.dll:40534883EC??488B05????????488BD94885C074??48895C24");
 
 	const ::protection::addresses::address_t& frame_input_ring_base = ADDRESS_IMPL(
 		::protection::addresses::hash("engine2.dll:488D05*????????0F1004C8"),
@@ -403,61 +403,6 @@ namespace patterns {
 		::protection::addresses::address_type::pattern,
 		"client.dll:48895C241048894C24085556574154415541564157488DAC2400FDFFFF4881EC");
 
-	const ::protection::addresses::address_t& prediction_finish_move = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:>E8????????488B8798010000"),
-		::protection::addresses::address_type::pattern,
-		"client.dll:>E8????????488B8798010000");
-
-	const ::protection::addresses::address_t& prediction_player = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:488905*????????488D15????????83FD"),
-		::protection::addresses::address_type::pattern,
-		"client.dll:488905*????????488D15????????83FD");
-
-	const ::protection::addresses::address_t& prediction_process_movement = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:>E8????????FFD3488B07"),
-		::protection::addresses::address_type::pattern,
-		"client.dll:>E8????????FFD3488B07");
-
-	const ::protection::addresses::address_t& prediction_reset_pawn = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:488B114885D274??806A????75??488B05????????8B4044894218"),
-		::protection::addresses::address_type::pattern,
-		"client.dll:488B114885D274??806A????75??488B05????????8B4044894218");
-
-	const ::protection::addresses::address_t& prediction_seed = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:8B3D*????????488B03488BCB"),
-		::protection::addresses::address_type::pattern,
-		"client.dll:8B3D*????????488B03488BCB");
-
-	const ::protection::addresses::address_t& prediction_set_pawn = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:48895C24??574883EC2048C70100000000488BFA488BD94885D274??488B02"),
-		::protection::addresses::address_type::pattern,
-		"client.dll:48895C24??574883EC2048C70100000000488BFA488BD94885D274??488B02");
-
-	const ::protection::addresses::address_t& prediction_set_state = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:8B81????????84D274??FFC08981????????C383E8018981????????75??80B9"),
-		::protection::addresses::address_type::pattern,
-		"client.dll:8B81????????84D274??FFC08981????????C383E8018981????????75??80B9");
-
-	const ::protection::addresses::address_t& prediction_suppress_effects = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:488B0D*????????498B542438488B010FB6928C000000FF10"),
-		::protection::addresses::address_type::pattern,
-		"client.dll:488B0D*????????498B542438488B010FB6928C000000FF10");
-
-	const ::protection::addresses::address_t& prediction_effects_suppressed = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:837910007E0332C0C30FB64114C3"),
-		::protection::addresses::address_type::pattern,
-		"client.dll:837910007E0332C0C30FB64114C3");
-
-	const ::protection::addresses::address_t& prediction_setup_move = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:>E8????????488B074D8BC6"),
-		::protection::addresses::address_type::pattern,
-		"client.dll:>E8????????488B074D8BC6");
-
-	const ::protection::addresses::address_t& prediction_state = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:488B0D*????????33D28B5B38"),
-		::protection::addresses::address_type::pattern,
-		"client.dll:488B0D*????????33D28B5B38");
-
 	const ::protection::addresses::address_t& prepare_scene_material = ADDRESS_IMPL(
 		::protection::addresses::hash("materialsystem2.dll:48895C24084889742410574883EC30488B5920"),
 		::protection::addresses::address_type::pattern,
@@ -514,9 +459,9 @@ namespace patterns {
 		"resourcesystem.dll:48895C24??48896C24??48897424??574883EC??488B01");
 
 	const ::protection::addresses::address_t& resource_system_precache = ADDRESS_IMPL(
-		::protection::addresses::hash("resourcesystem.dll:405355574881EC80000000"),
+		::protection::addresses::hash("resourcesystem.dll:405355574881EC????????488B01498BE8488BFA"),
 		::protection::addresses::address_type::pattern,
-		"resourcesystem.dll:405355574881EC80000000");
+		"resourcesystem.dll:405355574881EC????????488B01498BE8488BFA");
 
 	const ::protection::addresses::address_t& serialize_move_crc = ADDRESS_IMPL(
 		::protection::addresses::hash("client.dll:48895C24??5556574883EC30498BC0488BFA488BF1488B09F6C103"),
@@ -562,11 +507,6 @@ namespace patterns {
 		::protection::addresses::hash("client.dll:>E8????????4C39B5C8140000"),
 		::protection::addresses::address_type::pattern,
 		"client.dll:>E8????????4C39B5C8140000");
-
-	const ::protection::addresses::address_t& simulation_player = ADDRESS_IMPL(
-		::protection::addresses::hash("client.dll:4C3905*????????400F94C575??488D4B50"),
-		::protection::addresses::address_type::pattern,
-		"client.dll:4C3905*????????400F94C575??488D4B50");
 
 	const ::protection::addresses::address_t& sort_primitives = ADDRESS_IMPL(
 		::protection::addresses::hash("scenesystem.dll:4585C90F84????????5556574883EC30"),
@@ -732,5 +672,120 @@ namespace patterns {
 		::protection::addresses::hash("client.dll:85D20F88????????555657"),
 		::protection::addresses::address_type::pattern,
 		"client.dll:85D20F88????????555657");
+
+	const ::protection::addresses::address_t& agent_set_model = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:40534883EC??488BD94C8BC2488B0D????????488D5424"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:40534883EC??488BD94C8BC2488B0D????????488D5424");
+
+	const ::protection::addresses::address_t& glove_create_paint_kit = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:48895C24??564883EC??488B01FF50"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:48895C24??564883EC??488B01FF50");
+
+	const ::protection::addresses::address_t& glove_set_body_group = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:E8????????EB0C488BCF"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:E8????????EB0C488BCF");
+
+	const ::protection::addresses::address_t& knife_update_subclass = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:4C8BDC534881EC????????488B41"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:4C8BDC534881EC????????488B41");
+
+	const ::protection::addresses::address_t& add_key_chain_entity = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:44884424??48895424??48894C24??555356574154415541564157488DAC24"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:44884424??48895424??48894C24??555356574154415541564157488DAC24");
+
+	const ::protection::addresses::address_t& regenerate_skins = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:4883EC??E8????????4885C00F84????????488B10"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:4883EC??E8????????4885C00F84????????488B10");
+
+	const ::protection::addresses::address_t& clear_hud_weapon = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:E8????????8BF8C68424"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:E8????????8BF8C68424");
+
+	const ::protection::addresses::address_t& build_modern_skin = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:4885C90F84????????488BC448895010"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:4885C90F84????????488BC448895010");
+
+	const ::protection::addresses::address_t& find_hud_keychain_addon = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:48895C241857415641574883EC20498BF9458BF04533C94C8BFA488BD9E8"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:48895C241857415641574883EC20498BF9458BF04533C94C8BFA488BD9E8");
+
+	const ::protection::addresses::address_t& remove_hud_keychain_addon = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:4883EC284885C90F84????????488B51108B42300FBAE00B7307C1E8"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:4883EC284885C90F84????????488B51108B42300FBAE00B7307C1E8");
+
+	const ::protection::addresses::address_t& create_preview_item = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:48895C24084889742410574883EC2048B8FF7FFF7FFF7FFF7F488BFA483905????????488BF1751A"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:48895C24084889742410574883EC2048B8FF7FFF7FFF7FFF7F488BFA483905????????488BF1751A");
+
+	const ::protection::addresses::address_t& preview_block_ctor = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:48895C24084889742410574883EC20488BC233F64883C802488BF94584C0488BDA480F44C248894108488D05????????48890133C0488941104883C118E8????????48895F30"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:48895C24084889742410574883EC20488BC233F64883C802488BF94584C0488BDA480F44C248894108488D05????????48890133C0488941104883C118E8????????48895F30");
+
+	const ::protection::addresses::address_t& preview_parse_from_array = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:48895C2410488974241855574156488D6C24B94881ECB0000000488B05????????4833C448894537488B01488BDA488BF94963F0FF5018"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:48895C2410488974241855574156488D6C24B94881ECB0000000488B05????????4833C448894537488B01488BDA488BF94963F0FF5018");
+
+	const ::protection::addresses::address_t& preview_block_dtor = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:48895C2410574883EC20488D05????????488BD9488901F641080174??4883C108E8????????EB??488B41084883E0FC4885C075??488D4B18E8????????48837B4000488D4B30"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:48895C2410574883EC20488D05????????488BD9488901F641080174??4883C108E8????????EB??488B41084883E0FC4885C075??488D4B18E8????????48837B4000488D4B30");
+
+	const ::protection::addresses::address_t& preview_sticker_in_model_panel = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:4885D20F84????????48896C2418574883EC40488BCA48895C2450498BF9"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:4885D20F84????????48896C2418574883EC40488BCA48895C2450498BF9");
+
+	const ::protection::addresses::address_t& release_composite_materials = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:48895C241048896C2418488974242057415641574883EC20440FB6F2488BF9E8????????4533FF488BF0"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:48895C241048896C2418488974242057415641574883EC20440FB6F2488BF9E8????????4533FF488BF0");
+
+	const ::protection::addresses::address_t& ui_engine_pointer = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:488978??48890D????????"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:488978??48890D????????");
+
+	const ::protection::addresses::address_t& run_panorama_script = ADDRESS_IMPL(
+		::protection::addresses::hash("panorama.dll:4C894C24??4C894424??48895424??5553565741544156"),
+		::protection::addresses::address_type::pattern,
+		"panorama.dll:4C894C24??4C894424??48895424??5553565741544156");
+
+	const ::protection::addresses::address_t& main_menu_panel_pointer = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:4883EC28488B05????????488D15????????488B4808488B01FF90780100004885C0"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:4883EC28488B05????????488D15????????488B4808488B01FF90780100004885C0");
+
+	const ::protection::addresses::address_t& hud_panel_pointer = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:488935????????E8????????4885"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:488935????????E8????????4885");
+
+	const ::protection::addresses::address_t& panorama_create_render_targets = ADDRESS_IMPL(
+		::protection::addresses::hash("panorama.dll:4C8BDC55574155498DAB68FDFFFF4881EC800300004883B99800000000488BF90F85????????"),
+		::protection::addresses::address_type::pattern,
+		"panorama.dll:4C8BDC55574155498DAB68FDFFFF4881EC800300004883B99800000000488BF90F85????????");
+
+	const ::protection::addresses::address_t& panorama_acquire_layer_rt = ADDRESS_IMPL(
+		::protection::addresses::hash("panorama.dll:4053564883EC7848FF81A0000000488DB1D002000048897C2468488BF9"),
+		::protection::addresses::address_type::pattern,
+		"panorama.dll:4053564883EC7848FF81A0000000488DB1D002000048897C2468488BF9");
+
+	const ::protection::addresses::address_t& preview_player_constructor = ADDRESS_IMPL(
+		::protection::addresses::hash("client.dll:48895C2410574883EC20488BF9E8????????C787????00000000803F488D05????????488907"),
+		::protection::addresses::address_type::pattern,
+		"client.dll:48895C2410574883EC20488BF9E8????????C787????00000000803F488D05????????488907");
 
 } // namespace patterns

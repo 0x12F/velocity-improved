@@ -16,7 +16,6 @@ namespace addresses::globals {
 		input_system               = INTERFACE_ ("InputSystemVersion001");
 		particle_system_mgr        = INTERFACE_ ("ParticleSystemMgr003");
 		cvar                       = (interfaces::c_engine_cvar*)INTERFACE_ ("VEngineCvar007");
-		source2client_prediction   = INTERFACE_ ("Source2ClientPrediction001");
 		network_client_service     = INTERFACE_ ("NetworkClientService_001");
 		resource_system            = INTERFACE_ ("ResourceSystem013");
 		localize                   = INTERFACE_ ("Localize_001");
@@ -38,14 +37,10 @@ namespace addresses::globals {
 		game_entity_system     = PATTERN (patterns::game_entity_system);
 		weapon_recoil_data     = PATTERN (patterns::weapon_recoil_data);
 		hud                    = PATTERN (patterns::hud);
-		prediction_seed        = PATTERN (patterns::prediction_seed);
-		simulation_player      = PATTERN (patterns::simulation_player);
-		prediction_player      = PATTERN (patterns::prediction_player);
 		planted_c4             = PATTERN (patterns::planted_c4);
 		item_system            = PATTERN (patterns::item_system);
 		frame_input_ring_idx   = PATTERN (patterns::frame_input_ring_idx);
 		frame_input_ring_base  = PATTERN (patterns::frame_input_ring_base);
-		prediction_state       = PATTERN (patterns::prediction_state);
 
 		if (const auto ptr = MODULE_EXPORT("tier0.dll:g_pMemAlloc"))
 			mem_alloc = *reinterpret_cast<std::uintptr_t*>(ptr);
@@ -67,15 +62,11 @@ namespace addresses::globals {
 			{ "game_entity_system", game_entity_system },
 			{ "weapon_recoil_data", weapon_recoil_data },
 			{ "hud", hud },
-			{ "prediction_seed", prediction_seed },
-			{ "simulation_player", simulation_player },
-			{ "prediction_player", prediction_player },
 			{ "planted_c4", planted_c4 },
 			{ "item_system", item_system },
 			{ "network_client_service", network_client_service },
 			{ "frame_input_ring_idx", frame_input_ring_idx },
 			{ "frame_input_ring_base", frame_input_ring_base },
-			{ "prediction_state", prediction_state },
 		};
 
 		auto initialized = true;

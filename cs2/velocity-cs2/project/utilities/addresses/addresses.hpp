@@ -42,7 +42,6 @@ namespace addresses {
 		inline std::uintptr_t input_system{};
 		inline std::uintptr_t particle_system_mgr{};
 		inline interfaces::c_engine_cvar* cvar{};
-		inline std::uintptr_t source2client_prediction{};
 		inline std::uintptr_t network_client_service{};
 		inline std::uintptr_t resource_system{};
 		inline std::uintptr_t localize{};
@@ -66,14 +65,10 @@ namespace addresses {
 		inline std::uintptr_t game_entity_system{};
 		inline std::uintptr_t weapon_recoil_data{};
 		inline std::uintptr_t hud{};
-		inline std::uintptr_t prediction_seed{};
-		inline std::uintptr_t simulation_player{};
-		inline std::uintptr_t prediction_player{};
 		inline std::uintptr_t planted_c4{};
 		inline std::uintptr_t item_system{};
 		inline std::uintptr_t frame_input_ring_idx{};
 		inline std::uintptr_t frame_input_ring_base{};
-		inline std::uintptr_t prediction_state{};
 
 	} // namespace globals
 

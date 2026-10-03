@@ -268,15 +268,11 @@ namespace systems {
 		};
 
 		void capture_prestate( std::uintptr_t local_pawn, std::uintptr_t movement_services );
-		bool simulate( input::usercmd* cmd, const systems::local::snapshot& local, const std::function<void( )>& fn );
 
 		[[nodiscard]] const state& pre( ) const { return this->m_prestate; }
-		[[nodiscard]] bool is_simulating( ) const { return m_simulating; }
 
 	private:
-		inline static thread_local bool m_simulating{};
 		state m_prestate{};
-		std::mutex m_simulation_mtx{};
 	};
 
 	class view
@@ -539,115 +535,6 @@ namespace systems {
 		std::unordered_map<std::string, std::vector<std::byte>> m_pending_svgs{};
 	};
 
-	class model_preview
-	{
-	private:
-		struct render_viewport_t {
-			int version;
-			int top_left_x;
-			int top_left_y;
-			int width;
-			int height;
-			float min_z;
-			float max_z;
-
-			render_viewport_t( ) : version( 1 ) {}
-
-			void Init( ) {
-				memset( this, 0, sizeof( render_viewport_t ) );
-				version = 1;
-			}
-
-			void Init( int x, int y, int nWidth, int nHeight, float flMinZ = 0.0f, float flMaxZ = 1.0f ) {
-				version = 1;
-				top_left_x = x; top_left_y = y; width = nWidth; height = nHeight;
-				min_z = flMinZ;
-				max_z = flMaxZ;
-			}
-		};
-
-		class c_texture_dx11 {
-		public:
-			char pad_0000[ 8 ]; //0x0000
-			int32_t m_unk; //0x0008
-			char pad_000C[ 4 ]; //0x000C
-			ID3D11ShaderResourceView* m_texture_SRV0; //0x0010
-			ID3D11ShaderResourceView* m_texture_SRV1; //0x0018
-		}; //Size: 0x0020
-
-		struct texture_dx11_handle_t {
-			c_texture_dx11* m_texture; //0x0000
-			void* m_scratch_renderer; //0x0008
-			char pad_0010[ 24 ]; //0x0010
-			void* m_material_list; //0x0028
-		}; //Size: 0x0030
-
-		class c_scene_layer {
-		public:
-			void* vtable; //0x0000
-			char pad_0008[ 8 ]; //0x0008
-			render_viewport_t m_viewport;
-			int32_t m_layer_type; //0x002C
-			int32_t m_shader_mode; //0x0030
-			int32_t m_shading_mode; //0x0034
-			uint32_t m_object_flags_required_mask; //0x0038
-			uint32_t m_object_flags_excluded_mask; //0x003C
-			uint32_t m_layer_flags; //0x0040
-			xdraw::color m_clear_color; //0x0044
-			int32_t m_clear_flags; //0x0054
-			int32_t m_layer_index; //0x0058
-			int32_t m_render_target_binding_handle; //0x005C
-			char pad_0060[ 160 ]; //0x0060
-			float m_width; //0x0100
-			float m_height; //0x0104
-			char pad_0108[ 760 ]; //0x0108
-			void* m_vertex_buffer; //0x0400
-			void* m_vertex_buffer2; //0x0408
-			void* m_vertex_buffer3; //0x0410
-			char pad_0418[ 136 ]; //0x0418
-			char m_layer_name[ 64 ]; //0x04A0
-			char pad_04E0[ 760 ]; //0x04E0
-			texture_dx11_handle_t* m_texture_handle; //0x07D8
-			char pad_07E0[ 56 ]; //0x07E0
-			texture_dx11_handle_t* m_texture_handle2; //0x0818
-			char pad_0820[ 5760 ]; //0x0820
-		}; //Size: 0x1EA0
-
-		class c_generate_primitives_data {
-		public:
-			void* m_scene_view; //0x0000
-			void* m_scene_view_2; //0x0008
-			c_scene_layer* m_scene_layer; //0x0010
-			char pad_0018[ 88 ]; //0x0018
-			void* m_scene_view_3; //0x0070
-			char pad_0078[ 16 ]; //0x0078
-			void* m_view_drawlist_data; //0x0088
-			void* m_view_drawlist; //0x0090
-			c_scene_layer* m_scene_layer_2; //0x0098
-			char pad_00A0[ 24 ]; //0x00A0
-		}; //Size: 0x00B8
-
-		bool m_initialized = false;
-		void* m_current_texture = nullptr;
-	public:
-		bool initialize( );
-
-		bool on_generate_primitives(
-			std::uintptr_t owner_entity,
-			std::uint32_t owner_hash,
-			std::uintptr_t scene_object,
-			std::uintptr_t primitive_buffer,
-			void( __fastcall* original_fn )( std::uintptr_t, std::uintptr_t, std::uintptr_t, std::uintptr_t ),
-			std::uintptr_t a1,
-			std::uintptr_t scene_view
-		);
-
-		void* get_current_texture( ) const { return m_current_texture; }
-		bool has_texture( ) const { return m_current_texture != nullptr; }
-
-		void reset( ) { m_current_texture = nullptr; }
-	};
-
 	inline input g_input{};
 	inline legit_input g_legit_input{};
 	inline entities g_entities{};
@@ -660,7 +547,6 @@ namespace systems {
 	inline tracing g_tracing{};
 	inline frame_data g_frame_data{};
 	inline icons g_icons{};
-	inline model_preview g_model_preview{};
 
 } // namespace systems
 

@@ -89,10 +89,6 @@ namespace features {
 	namespace changer {
 
 		inline econ_item_system g_econ_item_system{};
-		inline agents g_agents{};
-		inline gloves g_gloves{};
-		inline guns g_guns{};
-		inline knives g_knives{};
 
 	} // namespace changer
 

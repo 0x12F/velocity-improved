@@ -85,17 +85,6 @@ namespace patterns {
 	extern const ::protection::addresses::address_t& particle_set_transform;
 	extern const ::protection::addresses::address_t& planted_c4;
 	extern const ::protection::addresses::address_t& post_network_data_received;
-	extern const ::protection::addresses::address_t& prediction_finish_move;
-	extern const ::protection::addresses::address_t& prediction_player;
-	extern const ::protection::addresses::address_t& prediction_process_movement;
-	extern const ::protection::addresses::address_t& prediction_reset_pawn;
-	extern const ::protection::addresses::address_t& prediction_seed;
-	extern const ::protection::addresses::address_t& prediction_set_pawn;
-	extern const ::protection::addresses::address_t& prediction_set_state;
-	extern const ::protection::addresses::address_t& prediction_suppress_effects;
-	extern const ::protection::addresses::address_t& prediction_effects_suppressed;
-	extern const ::protection::addresses::address_t& prediction_setup_move;
-	extern const ::protection::addresses::address_t& prediction_state;
 	extern const ::protection::addresses::address_t& prepare_scene_material;
 	extern const ::protection::addresses::address_t& process_input_event;
 	extern const ::protection::addresses::address_t& read_frame_input;
@@ -117,7 +106,6 @@ namespace patterns {
 	extern const ::protection::addresses::address_t& set_shader_param_i;
 	extern const ::protection::addresses::address_t& set_view_angles;
 	extern const ::protection::addresses::address_t& set_voice_data;
-	extern const ::protection::addresses::address_t& simulation_player;
 	extern const ::protection::addresses::address_t& sort_primitives;
 	extern const ::protection::addresses::address_t& setup_fog;
 	extern const ::protection::addresses::address_t& play_sound;
@@ -151,6 +139,30 @@ namespace patterns {
 	extern const ::protection::addresses::address_t& econ_item_view_remove_attribute;
 	extern const ::protection::addresses::address_t& econ_item_view_invalidate_description;
 	extern const ::protection::addresses::address_t& set_bodygroup;
+
+	extern const ::protection::addresses::address_t& agent_set_model;
+	extern const ::protection::addresses::address_t& glove_create_paint_kit;
+	extern const ::protection::addresses::address_t& glove_set_body_group;
+	extern const ::protection::addresses::address_t& knife_update_subclass;
+	extern const ::protection::addresses::address_t& add_key_chain_entity;
+	extern const ::protection::addresses::address_t& regenerate_skins;
+	extern const ::protection::addresses::address_t& clear_hud_weapon;
+	extern const ::protection::addresses::address_t& build_modern_skin;
+	extern const ::protection::addresses::address_t& find_hud_keychain_addon;
+	extern const ::protection::addresses::address_t& remove_hud_keychain_addon;
+	extern const ::protection::addresses::address_t& create_preview_item;
+	extern const ::protection::addresses::address_t& preview_block_ctor;
+	extern const ::protection::addresses::address_t& preview_parse_from_array;
+	extern const ::protection::addresses::address_t& preview_block_dtor;
+	extern const ::protection::addresses::address_t& preview_sticker_in_model_panel;
+	extern const ::protection::addresses::address_t& release_composite_materials;
+	extern const ::protection::addresses::address_t& ui_engine_pointer;
+	extern const ::protection::addresses::address_t& run_panorama_script;
+	extern const ::protection::addresses::address_t& main_menu_panel_pointer;
+	extern const ::protection::addresses::address_t& hud_panel_pointer;
+	extern const ::protection::addresses::address_t& panorama_create_render_targets;
+	extern const ::protection::addresses::address_t& panorama_acquire_layer_rt;
+	extern const ::protection::addresses::address_t& preview_player_constructor;
 
 } // namespace patterns
 

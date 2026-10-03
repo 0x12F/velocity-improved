@@ -4,6 +4,8 @@
 
 namespace memory {
 
+	[[nodiscard]] void* find_nonvirtual_base(void* object, const char* type_name);
+
 	namespace detail {
 
 		template <typename T>

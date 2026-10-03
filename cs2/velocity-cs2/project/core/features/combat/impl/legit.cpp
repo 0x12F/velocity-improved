@@ -57,12 +57,6 @@ namespace features::combat {
 		ctx.spread = g_shared.get_spread( );
 		ctx.inaccuracy = g_shared.get_inaccuracy( true );
 
-		systems::g_prediction.simulate( cmd, local, [ & ]
-			{
-				ctx.spread = g_shared.get_spread( );
-				ctx.inaccuracy = g_shared.get_inaccuracy( true );
-			} );
-
 		auto detection_angles = view_angles;
 		if ( config.rcs.value && aim_punch.length_sqr( ) > 0.0001f )
 		{

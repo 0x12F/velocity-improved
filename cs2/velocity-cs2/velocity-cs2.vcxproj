@@ -135,11 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="project\core\features\changer\impl\agents.cpp" />
-    <ClCompile Include="project\core\features\changer\impl\gloves.cpp" />
-    <ClCompile Include="project\core\features\changer\impl\guns.cpp" />
     <ClCompile Include="project\core\features\changer\impl\econ_item_system.cpp" />
-    <ClCompile Include="project\core\features\changer\impl\knives.cpp" />
     <ClCompile Include="project\core\features\combat\impl\extrapolation.cpp" />
     <ClCompile Include="project\core\features\combat\impl\legit.cpp" />
     <ClCompile Include="project\core\features\combat\impl\misc.cpp" />
@@ -185,6 +181,7 @@
     <ClCompile Include="project\core\rendering\impl\menu\menu.player.cpp" />
     <ClCompile Include="project\core\rendering\impl\menu\menu.ragebot.cpp" />
     <ClCompile Include="project\core\rendering\impl\menu\menu.skins.cpp" />
+    <ClCompile Include="project\core\rendering\impl\menu\menu.skins.editor.cpp" />
     <ClCompile Include="project\core\rendering\impl\menu\menu.world.cpp" />
     <ClCompile Include="project\core\rendering\impl\widgets.cpp" />
     <ClCompile Include="project\core\systems\impl\bones.cpp" />
@@ -198,7 +195,6 @@
     <ClCompile Include="project\core\systems\impl\legit_input.cpp" />
     <ClCompile Include="project\core\systems\impl\local.cpp" />
     <ClCompile Include="project\core\systems\impl\materials.cpp" />
-    <ClCompile Include="project\core\systems\impl\model_preview.cpp" />
     <ClCompile Include="project\core\systems\impl\prediction.cpp" />
     <ClCompile Include="project\core\systems\impl\schemas.cpp" />
     <ClCompile Include="project\core\systems\impl\tracing.cpp" />
@@ -346,6 +342,39 @@
     <None Include=".editorconfig" />
     <None Include="project\external\inline-syscall\inline_syscall.inl" />
     <None Include="vcpkg.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="project\core\features\changer\impl\runtime.cpp" />
+    <ClCompile Include="project\core\features\changer\impl\configuration.cpp" />
+    <ClInclude Include="project\core\features\changer\runtime.hpp" />
+    <ClInclude Include="project\core\features\changer\cosmetics.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="project\core\features\changer\agent_models.hpp" />
+    <ClInclude Include="project\core\features\changer\cosmetic_configuration.hpp" />
+    <ClInclude Include="project\core\features\changer\econ_item_attribute_manager.hpp" />
+    <ClInclude Include="project\core\features\changer\engine.hpp" />
+    <ClInclude Include="project\core\features\changer\glove_changer.hpp" />
+    <ClInclude Include="project\core\features\changer\knife_model_changer.hpp" />
+    <ClInclude Include="project\core\features\changer\skinchanger.hpp" />
+    <ClInclude Include="project\core\features\changer\skin_application.hpp" />
+    <ClInclude Include="project\core\features\changer\sticker_placement.hpp" />
+    <ClInclude Include="project\core\features\changer\weapon_cosmetics.hpp" />
+    <ClCompile Include="project\core\features\changer\impl\econ_item_attribute_manager.cpp" />
+    <ClCompile Include="project\core\features\changer\impl\glove_changer.cpp" />
+    <ClCompile Include="project\core\features\changer\impl\knife_model_changer.cpp" />
+    <ClCompile Include="project\core\features\changer\impl\skinchanger.cpp" />
+    <ClCompile Include="project\core\features\changer\impl\skin_application.cpp" />
+    <ClCompile Include="project\core\features\changer\impl\sticker_catalog.cpp" />
+    <ClCompile Include="project\core\features\changer\impl\weapon_cosmetics.cpp" />
+    <ClInclude Include="project\core\systems\preview\layouts.hpp" />
+    <ClCompile Include="project\core\systems\preview\model_preview.cpp" />
+    <ClInclude Include="project\core\systems\preview\model_preview.hpp" />
+    <ClCompile Include="project\core\systems\preview\model_preview_item.cpp" />
+    <ClInclude Include="project\core\systems\preview\model_preview_item.hpp" />
+    <ClCompile Include="project\core\systems\preview\model_preview_panorama.cpp" />
+    <ClInclude Include="project\core\systems\preview\model_preview_panorama.hpp" />
+    <ClCompile Include="project\utilities\memory\rtti.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(VcpkgRoot)scripts\buildsystems\msbuild\vcpkg.targets" Condition="'$(VelocityImportVcpkg)'=='true'" />

@@ -58,7 +58,7 @@ namespace features::combat {
 			return;
 		}
 
-		auto aim_ctx = this->build_context( cmd, local );
+		auto aim_ctx = this->build_context( local );
 
 		if ( is_knife )
 		{
@@ -139,24 +139,17 @@ namespace features::combat {
 		}
 	}
 
-	rage::aim_context rage::build_context( systems::input::usercmd* cmd, const systems::local::snapshot& local ) const
+	rage::aim_context rage::build_context( const systems::local::snapshot& local ) const
 	{
 		auto& ctx = g_shared.ctx( );
 		const auto& prestate = systems::g_prediction.pre( );
+
+		g_shared.sh( ).snapshot( local.pawn, ctx.weapon_services );
 
 		aim_context out{};
 		out.velocity = prestate.velocity;
 		out.spread = g_shared.get_spread( );
 		out.predicted_inaccuracy = g_shared.get_inaccuracy( true );
-
-		systems::g_prediction.simulate( cmd, local, [ & ]
-			{
-				g_shared.sh( ).snapshot( local.pawn, ctx.weapon_services );
-
-				out.velocity = memory::read<math::vector3>( local.pawn + SCHEMA( "C_BaseEntity", "m_vecAbsVelocity"_hash ) );
-				out.spread = g_shared.get_spread( );
-				out.predicted_inaccuracy = g_shared.get_inaccuracy( true );
-			} );
 
 		ctx.spread = out.spread;
 		ctx.inaccuracy = out.predicted_inaccuracy;

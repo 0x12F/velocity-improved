@@ -5,6 +5,7 @@
 #include <utilities/threadpool/threadpool.hpp>
 #include <utilities/game_path.hpp>
 #include "../changer.hpp"
+#include "../agent_models.hpp"
 
 namespace features::changer {
 
@@ -258,6 +259,15 @@ namespace features::changer {
 			}
 
 			item.category = this->classify( item.item_class.c_str( ), item.loadout_slot );
+			if ( item.category == item_category::agent )
+			{
+				item.model_player = agent_models::resolve( item.name, item.model_player, item.localized_name,
+					[]( const std::string& model ) {
+						const auto compiled_path = model + "_c";
+						return addresses::globals::file_system && memory::call_vfunc<bool>(
+							addresses::globals::file_system, 21, compiled_path.c_str( ), "GAME" );
+					} );
+			}
 			this->m_item_defs.push_back( std::move( item ) );
 		}
 

@@ -69,6 +69,7 @@ namespace rendering {
         void draw_player( float group_w ) const;
         void draw_world( float group_w ) const;
         void draw_skins( float group_w ) const;
+        float draw_skin_editor(float x, float y, float width, float height, std::int16_t browsing_definition) const;
         void draw_misc( float group_w ) const;
         void draw_config( float group_w );
 

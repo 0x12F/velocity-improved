@@ -1,7 +1,3 @@
-## Information
-
-Project has not been fully updated yet. There may be some crashes, and some features may not work properly. Please be patient while I complete the update.
-
 ## Requirements
 
 - Visual Studio 2022 or newer

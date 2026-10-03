@@ -229,10 +229,9 @@ namespace features::misc {
 				this->m_delayed_attack2 = !attacking && attacking2;
 			}
 
-			auto predicted_velocity = systems::g_prediction.pre( ).networked_velocity;
-			systems::g_prediction.simulate( cmd, local, [ & ]( ) { predicted_velocity = memory::read<math::vector3>( local.pawn + SCHEMA( "C_BaseEntity", "m_vecVelocity"_hash ) ); } );
+			const auto current_velocity = systems::g_prediction.pre( ).networked_velocity;
 
-			const auto vel_contribution = predicted_velocity * k_velocity_inherit;
+			const auto vel_contribution = current_velocity * k_velocity_inherit;
 			const auto throw_vel = std::clamp( this->m_throw_velocity * 0.9f, 15.0f, 750.0f );
 			const auto throw_speed = ( this->m_delayed_strength * 0.7f + 0.3f ) * throw_vel;
 
@@ -850,15 +849,14 @@ namespace features::misc {
 			return;
 		}
 
-		auto predicted_velocity = systems::g_prediction.pre( ).networked_velocity;
-		systems::g_prediction.simulate( cmd, local, [ & ]( ) { predicted_velocity = memory::read<math::vector3>( local.pawn + SCHEMA( "C_BaseEntity", "m_vecVelocity"_hash ) ); } );
+		const auto current_velocity = systems::g_prediction.pre( ).networked_velocity;
 
-		if ( predicted_velocity.length_sqr( ) < 1.0f )
+		if ( current_velocity.length_sqr( ) < 1.0f )
 		{
 			return;
 		}
 
-		const auto vel_contribution = predicted_velocity * k_velocity_inherit;
+		const auto vel_contribution = current_velocity * k_velocity_inherit;
 		const auto vel_along = desired_forward * vel_contribution.dot( desired_forward );
 		const auto vel_perp = vel_contribution - vel_along;
 		const auto perp_len_sq = vel_perp.length_sqr( );

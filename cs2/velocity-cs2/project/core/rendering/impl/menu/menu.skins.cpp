@@ -647,7 +647,7 @@ namespace rendering {
 			}
 
 			const auto image_h = std::floor( card.h * k_image_h_ratio );
-			const auto hovered = !xui::ctx( ).overlay_blocking( ) && input.in_rect( card );
+			const auto hovered = !xui::ctx( ).overlay_blocking( ) && input.in_rect( card ) && input.in_rect( xui::layout::current_window( )->bounds );
 			const auto hover_anim = xui::anim::lerp( xui::fnv1a( "ateam" ) + static_cast< std::uintptr_t >( team ), hovered ? 1.0f : 0.0f, 14.0f );
 
 			auto card_bg = tokens::col_card;
@@ -728,7 +728,7 @@ namespace rendering {
 
 			const auto image_h = std::floor( card.h * k_image_h_ratio );
 
-			const auto hovered = !xui::ctx( ).overlay_blocking( ) && input.in_rect( card );
+			const auto hovered = !xui::ctx( ).overlay_blocking( ) && input.in_rect( card ) && input.in_rect( xui::layout::current_window( )->bounds );
 			const auto hover_anim = xui::anim::lerp( xui::fnv1a( "wcard" ) + static_cast< std::uintptr_t >( def->def_index ), hovered ? 1.0f : 0.0f, 14.0f );
 
 			auto card_bg = tokens::col_card;
@@ -916,7 +916,7 @@ namespace rendering {
 
 			const auto image_h = std::floor( card.h * k_image_h_ratio );
 
-			const auto hovered = !xui::ctx( ).overlay_blocking( ) && input.in_rect( card );
+			const auto hovered = !xui::ctx( ).overlay_blocking( ) && input.in_rect( card ) && input.in_rect( xui::layout::current_window( )->bounds );
 			const auto hover_anim = xui::anim::lerp( xui::fnv1a( "atile" ) + static_cast< std::uintptr_t >( def->def_index ), hovered ? 1.0f : 0.0f, 14.0f );
 
 			auto card_bg = tokens::col_card;
@@ -988,6 +988,7 @@ namespace rendering {
 			if ( hovered && input.mouse_clicked )
 			{
 				auto& target = ( skins_ui.browsing_agent_team == 3 ) ? settings::g_changer.agents.ct_def : settings::g_changer.agents.t_def;
+				skins_ui.browsing_def = def->def_index;
 
 				if ( is_equipped )
 				{
@@ -1014,7 +1015,7 @@ namespace rendering {
 			const auto image_h = std::floor( card.h * k_image_h_ratio );
 
 			const auto is_equipped = ( pk->id == current_kit_id );
-			const auto hovered = !xui::ctx( ).overlay_blocking( ) && input.in_rect( card );
+			const auto hovered = !xui::ctx( ).overlay_blocking( ) && input.in_rect( card ) && input.in_rect( xui::layout::current_window( )->bounds );
 			const auto hover_anim = xui::anim::lerp( xui::fnv1a( "scard" ) + static_cast< std::uintptr_t >( pk->id ), hovered ? 1.0f : 0.0f, 14.0f );
 
 			auto card_bg = tokens::col_card;
@@ -1161,9 +1162,12 @@ namespace rendering {
 		const auto wx = this->m_x;
 		const auto wy = this->m_y;
 		const auto content_x = wx + tokens::gap + tokens::sidebar_w + tokens::gap;
-		const auto body_y = wy + tokens::gap + tokens::subtab_bar_h + tokens::gap;
+		auto body_y = wy + tokens::gap + tokens::subtab_bar_h + tokens::gap;
 		const auto content_w = this->m_w - tokens::gap * 2.0f - tokens::sidebar_w - tokens::gap;
-		const auto body_h = this->m_h - tokens::gap * 2.0f - tokens::subtab_bar_h - tokens::gap;
+		auto body_h = this->m_h - tokens::gap * 2.0f - tokens::subtab_bar_h - tokens::gap;
+		const auto editor_height = this->draw_skin_editor(content_x, body_y, content_w, body_h, detail::skins_ui.browsing_def);
+		body_y += editor_height;
+		body_h -= editor_height;
 
 		const auto dt = xdraw::delta_time( );
 		const auto fade_target = ( detail::skins_ui.current == detail::skins_ui.target ) ? 1.0f : 0.0f;
@@ -1286,7 +1290,7 @@ namespace rendering {
 
 			const auto back_w{ 60.0f };
 			const auto back_rect = xui::rect{ bar_x, bar_y, back_w, bar_h };
-			const auto back_hovered = !xui::ctx( ).overlay_blocking( ) && input.in_rect( back_rect );
+			const auto back_hovered = !xui::ctx( ).overlay_blocking( ) && input.in_rect( back_rect ) && input.in_rect( win->bounds );
 			const auto back_hover = xui::anim::lerp( xui::fnv1a( "skin_back" ), back_hovered ? 1.0f : 0.0f, 14.0f );
 
 			if ( back_hovered && input.mouse_clicked )

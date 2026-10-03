@@ -2,6 +2,7 @@
 
 #include <utilities/math/math.hpp>
 #include <external/config.hpp>
+#include <core/features/changer/cosmetics.hpp>
 
 namespace settings {
 
@@ -1027,6 +1028,10 @@ namespace settings {
 			float wear{ 0.01f };
 			int seed{};
 			bool stattrak{};
+			int stattrak_kills{};
+			std::string custom_name{};
+			std::array<features::changer::cosmetic_config::skin_sticker_t, 5> stickers{};
+			features::changer::cosmetic_config::skin_keychain_t keychain{};
 
 			bool operator==( const applied_skin& ) const = default;
 		};
@@ -1045,7 +1050,11 @@ namespace settings {
 						{"p", s.paint_kit_id},
 						{"w", s.wear},
 						{"s", s.seed},
-						{"t", s.stattrak}
+						{"t", s.stattrak},
+						{"stattrak_kills", s.stattrak_kills},
+						{"custom_name", s.custom_name},
+						{"stickers", s.stickers},
+						{"keychain", s.keychain}
 					};
 				}
 
@@ -1071,6 +1080,20 @@ namespace settings {
 						s.wear = it.value( ).value( "w", 0.01f );
 						s.seed = it.value( ).value( "s", 0 );
 						s.stattrak = it.value( ).value( "t", false );
+						s.stattrak_kills = std::max( 0, it.value( ).value( "stattrak_kills", 0 ) );
+						s.custom_name = it.value( ).value( "custom_name", std::string{} ).substr( 0, 63 );
+						s.stickers = it.value( ).value( "stickers", std::array<features::changer::cosmetic_config::skin_sticker_t, 5>{} );
+						s.keychain = it.value( ).value( "keychain", features::changer::cosmetic_config::skin_keychain_t{} );
+						s.wear = std::clamp( s.wear, 0.0001f, 1.0f );
+						s.seed = std::clamp( s.seed, 0, 1000 );
+						for ( auto& sticker : s.stickers )
+						{
+							sticker.wear = std::clamp( sticker.wear, 0.0f, 1.0f );
+							sticker.scale = std::clamp( sticker.scale, 0.1f, 5.0f );
+							sticker.rotation = std::clamp( sticker.rotation, -180.0f, 180.0f );
+							sticker.offsetX = std::clamp( sticker.offsetX, -0.5f, 0.5f );
+							sticker.offsetY = std::clamp( sticker.offsetY, -0.5f, 0.5f );
+						}
 					}
 					catch ( ... ) {}
 				}
@@ -1105,6 +1128,7 @@ namespace settings {
 
 		skin_map_field skins{};
 		agent_selection_field agents{};
+		xui::setting enabled{ true, {}, "enabled", "skinchanger" };
 
 		changer( )
 		{
