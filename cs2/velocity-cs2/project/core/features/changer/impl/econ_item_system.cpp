@@ -8,6 +8,11 @@
 #include "../agent_models.hpp"
 
 namespace features::changer {
+	namespace {
+		// Verified against the game's paint_kits loader (client.dll, October 8, 2026).
+		constexpr std::uintptr_t paint_kit_count_offset = 0x2A0;
+		constexpr std::uintptr_t paint_kit_nodes_offset = 0x2A8;
+	}
 
 	bool econ_item_system::initialize( )
 	{
@@ -29,8 +34,8 @@ namespace features::changer {
 			{
 				const auto item_count = memory::safe_read<int>( schema + 0x128 ).value_or( 0 );
 				const auto item_array = memory::safe_read<std::uintptr_t>( schema + 0x130 ).value_or( 0 );
-				const auto paint_count = memory::safe_read<int>( schema + 0x2F0 ).value_or( 0 );
-				const auto paint_nodes = memory::safe_read<std::uintptr_t>( schema + 0x2F8 ).value_or( 0 );
+				const auto paint_count = memory::safe_read<int>( schema + paint_kit_count_offset ).value_or( 0 );
+				const auto paint_nodes = memory::safe_read<std::uintptr_t>( schema + paint_kit_nodes_offset ).value_or( 0 );
 
 				if ( item_count > 0 && item_count <= 10000 && item_array
 					&& paint_count > 0 && paint_count <= 10000 && paint_nodes )
@@ -276,10 +281,8 @@ namespace features::changer {
 
 	bool econ_item_system::parse_paint_kits( std::uintptr_t schema )
 	{
-		const auto tree_base = schema + 0x2F0;
-
-		const auto count = memory::read<int>( tree_base + 0x00 );
-		const auto nodes = memory::read<std::uintptr_t>( tree_base + 0x08 );
+		const auto count = memory::safe_read<int>( schema + paint_kit_count_offset ).value_or( 0 );
+		const auto nodes = memory::safe_read<std::uintptr_t>( schema + paint_kit_nodes_offset ).value_or( 0 );
 
 		if ( !nodes || count <= 0 || count > 10000 )
 		{
@@ -291,7 +294,7 @@ namespace features::changer {
 		for ( auto i = 0; i < count; i++ )
 		{
 			const auto node_base = nodes + static_cast< std::uintptr_t >( 32 * i );
-			const auto pk_ptr = memory::read<std::uintptr_t>( node_base + 24 );
+			const auto pk_ptr = memory::safe_read<std::uintptr_t>( node_base + 24 ).value_or( 0 );
 
 			if ( !pk_ptr )
 			{
@@ -299,25 +302,43 @@ namespace features::changer {
 			}
 
 			paint_kit pk{};
-			pk.id = memory::read<int>( pk_ptr + 0x00 );
-			pk.wear_min = memory::read<float>( pk_ptr + 0x6C );
-			pk.wear_max = memory::read<float>( pk_ptr + 0x70 );
-			pk.legacy_model = memory::read<bool>( pk_ptr + 0xAE );
-			pk.rarity = static_cast< std::uint8_t >( memory::read<int>( pk_ptr + 0x44 ) & 0xFF );
+			const auto id = memory::safe_read<int>( pk_ptr + 0x00 );
+			const auto wear_min = memory::safe_read<float>( pk_ptr + 0x6C );
+			const auto wear_max = memory::safe_read<float>( pk_ptr + 0x70 );
+			const auto legacy_model = memory::safe_read<std::uint8_t>( pk_ptr + 0xAE );
+			const auto rarity = memory::safe_read<int>( pk_ptr + 0x44 );
+			if ( !id || !wear_min || !wear_max || !legacy_model || !rarity
+				|| !std::isfinite( *wear_min ) || !std::isfinite( *wear_max )
+				|| *wear_min < 0.0f || *wear_max > 1.0f || *wear_min > *wear_max )
+			{
+				logging::console::print( xs( "[econ] invalid paint-kit record; check schema layout" ) );
+				return false;
+			}
+			pk.id = *id;
+			pk.wear_min = *wear_min;
+			pk.wear_max = *wear_max;
+			pk.legacy_model = *legacy_model != 0;
+			pk.rarity = static_cast<std::uint8_t>( *rarity & 0xFF );
 
-			if ( const auto name_ptr = memory::read<std::uintptr_t>( pk_ptr + 0x08 ); name_ptr )
+			if ( const auto name_ptr = memory::safe_read<std::uintptr_t>( pk_ptr + 0x08 ).value_or( 0 ); name_ptr )
 			{
 				pk.name = memory::read_string( name_ptr );
 			}
 
-			if ( const auto desc_ptr = memory::read<std::uintptr_t>( pk_ptr + 0x10 ); desc_ptr )
+			if ( const auto desc_ptr = memory::safe_read<std::uintptr_t>( pk_ptr + 0x10 ).value_or( 0 ); desc_ptr )
 			{
 				pk.desc_token = memory::read_string( desc_ptr );
 			}
 
-			if ( const auto name_token_ptr = memory::read<std::uintptr_t>( pk_ptr + 0x18 ); name_token_ptr )
+			if ( const auto name_token_ptr = memory::safe_read<std::uintptr_t>( pk_ptr + 0x18 ).value_or( 0 ); name_token_ptr )
 			{
 				pk.name_token = memory::read_string( name_token_ptr );
+			}
+
+			if ( pk.name.empty( ) )
+			{
+				logging::console::print( xs( "[econ] unreadable paint-kit name; check schema layout" ) );
+				return false;
 			}
 
 			this->m_paint_kits.push_back( std::move( pk ) );

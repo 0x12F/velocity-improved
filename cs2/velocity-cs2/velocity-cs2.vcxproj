@@ -366,7 +366,11 @@
     <ClCompile Include="project\core\features\changer\impl\skinchanger.cpp" />
     <ClCompile Include="project\core\features\changer\impl\skin_application.cpp" />
     <ClCompile Include="project\core\features\changer\impl\sticker_catalog.cpp" />
-    <ClCompile Include="project\core\features\changer\impl\weapon_cosmetics.cpp" />
+    <ClInclude Include="project\core\features\changer\agent_changer.hpp" />
+    <ClCompile Include="project\core\features\changer\impl\agent_changer.cpp" />
+    <ClCompile Include="project\core\features\changer\impl\weapon_cosmetics.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClInclude Include="project\core\systems\preview\layouts.hpp" />
     <ClCompile Include="project\core\systems\preview\model_preview.cpp" />
     <ClInclude Include="project\core\systems\preview\model_preview.hpp" />

@@ -1,4 +1,5 @@
 #pragma once
+#include "agent_changer.hpp"
 #include <core/features/changer/cosmetic_configuration.hpp>
 
 #include <cstdint>
@@ -7,11 +8,7 @@
 namespace features::changer::application
 {
     void Run();
-    void RunAgentChanger();
     void ForceUpdate();
-    void ForceAgentUpdate();
-    bool IsAgentDefinitionRejected(std::uint16_t definitionIndex);
-    void PrecacheAgentModels();
     void Reset();
 
     // Hold live application until the current continuous UI edit is committed.
@@ -21,4 +18,4 @@ namespace features::changer::application
     void ProcessPendingKeychains();
 
     [[nodiscard]] std::vector<std::uint16_t> GetOwnedWeaponDefinitionIndices();
-}
+} // namespace features::changer::application

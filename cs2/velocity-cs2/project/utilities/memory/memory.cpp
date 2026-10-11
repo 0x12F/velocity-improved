@@ -585,20 +585,26 @@ found_type_descriptor:
 	}
 
 	std::string read_string (std::uintptr_t address, std::size_t max_length) {
-		if (!address) {
+		if (!address || max_length == 0) {
 			return {};
 		}
 
-		auto str_ptr = reinterpret_cast<const char*>(address);
-
-		auto len {0ull};
-		for (; len < max_length && str_ptr [len] != '\0'; ++len);
-
-		if (len == 0) {
-			return {};
+		std::string result;
+		for (std::size_t offset = 0; offset < max_length; ++offset) {
+			if (address + offset < address) {
+				return {};
+			}
+			const auto character = safe_read<char>(address + offset);
+			if (!character) {
+				return {};
+			}
+			if (*character == '\0') {
+				break;
+			}
+			result.push_back(*character);
 		}
 
-		return std::string (str_ptr, len);
+		return result;
 	}
 
 } // namespace memory
