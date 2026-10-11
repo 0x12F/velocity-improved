@@ -144,6 +144,11 @@ namespace systems {
 
 	std::uintptr_t entities::get_by_index( std::int32_t index )
 	{
+		if ( index < 0 || index > entity_index_mask || !addresses::globals::entity_list )
+		{
+			return 0;
+		}
+
 		const auto entity_list = memory::read<std::uintptr_t>( addresses::globals::entity_list );
 		if ( !entity_list )
 		{
@@ -156,7 +161,7 @@ namespace systems {
 			this->m_cached_list_entries.fill( 0 );
 		}
 
-		const auto chunk_index = index >> 9;
+		const auto chunk_index = static_cast< std::size_t >( index ) / entities_per_chunk;
 
 		if ( !this->m_cached_list_entries[ chunk_index ] )
 		{
@@ -169,7 +174,7 @@ namespace systems {
 			return 0;
 		}
 
-		return memory::read<std::uintptr_t>( list_entry + ( static_cast< std::uintptr_t >( index & 0x1ff ) * 112 ) );
+		return memory::read<std::uintptr_t>( list_entry + ( static_cast< std::uintptr_t >( index ) % entities_per_chunk ) * 112 );
 	}
 
 	std::uintptr_t entities::lookup( std::uint32_t handle ) const

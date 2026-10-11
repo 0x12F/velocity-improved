@@ -202,9 +202,13 @@ namespace systems {
 	private:
 		[[nodiscard]] type classify_entity( std::uint32_t schema_hash ) const;
 
+		static constexpr std::int32_t entity_index_mask = 0x7fff;
+		static constexpr std::size_t entities_per_chunk = 512;
+		static constexpr std::size_t entity_chunk_count = ( entity_index_mask + 1 ) / entities_per_chunk;
+
 		std::vector<cached> m_cached{};
 		mutable std::shared_mutex m_cache_mtx{};
-		std::array<std::uintptr_t, 32> m_cached_list_entries{};
+		std::array<std::uintptr_t, entity_chunk_count> m_cached_list_entries{};
 		std::uintptr_t m_cached_entity_list{};
 	};
 
