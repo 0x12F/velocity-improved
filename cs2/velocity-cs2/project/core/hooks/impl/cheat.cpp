@@ -9,10 +9,18 @@
 #include <core/rendering/rendering.hpp>
 #include <core/systems/systems.hpp>
 #include <core/features/features.hpp>
+#include <core/features/misc/server_regions.hpp>
+#include <core/features/misc/server_ping_report.hpp>
 #include <protection/game_addresses.hpp>
 #include "../hooks.hpp"
 
 namespace hooks {
+
+	namespace {
+		std::atomic<int> forced_server_region{ features::misc::server_regions::disabled };
+		enum class ping_report_status { waiting, applied, malformed, no_centers, send_failed };
+		std::atomic<ping_report_status> last_ping_report_status{ ping_report_status::waiting };
+	}
 
 	bool cheat::initialize () {
 		if (!hooking::manager::create ({
@@ -76,11 +84,47 @@ namespace hooks {
 				unavailable_hooks);
 		}
 
+		auto get_networking_utils = MODULE_EXPORT( "steamnetworkingsockets.dll:SteamNetworkingUtils_LibV4" );
+		if ( !get_networking_utils )
+			get_networking_utils = MODULE_EXPORT( "steam_api64.dll:SteamAPI_SteamNetworkingUtils_SteamAPI_v004" );
+		const auto networking_utils = get_networking_utils ? memory::call<std::uintptr_t>( get_networking_utils ) : 0;
+		// ISteamNetworkingUtils004::GetPingToDataCenter, from Valve's public interface.
+		constexpr auto get_ping_to_data_center_index{ 9 };
+		if ( !networking_utils || !hooking::manager::create( {
+			{ &m_get_ping_to_data_center, reinterpret_cast<void*>( &get_ping_to_data_center ), xs( "get_ping_to_data_center" ),
+				memory::get_vfunc( networking_utils, get_ping_to_data_center_index ) }
+		} ) )
+		{
+			logging::console::print( xs( "force server: live ping hook unavailable; using outgoing report filtering" ) );
+		}
+
+		const auto get_steam_client = MODULE_EXPORT( "steam_api64.dll:SteamClient" );
+		const auto get_steam_user = MODULE_EXPORT( "steam_api64.dll:SteamAPI_GetHSteamUser" );
+		const auto get_steam_pipe = MODULE_EXPORT( "steam_api64.dll:SteamAPI_GetHSteamPipe" );
+		const auto get_generic_interface = MODULE_EXPORT( "steam_api64.dll:SteamAPI_ISteamClient_GetISteamGenericInterface" );
+		std::uintptr_t coordinator{};
+		if ( get_steam_client && get_steam_user && get_steam_pipe && get_generic_interface )
+		{
+			const auto client = memory::call<std::uintptr_t>( get_steam_client );
+			if ( client )
+				coordinator = memory::call<std::uintptr_t>( get_generic_interface, client,
+					memory::call<int>( get_steam_user ), memory::call<int>( get_steam_pipe ), xs( "SteamGameCoordinator001" ) );
+		}
+		constexpr auto send_message_index{ 0 };
+		if ( !coordinator || !hooking::manager::create( {
+			{ &m_send_gc_message, reinterpret_cast<void*>( &send_gc_message ), xs( "force_server_ping_report" ),
+				memory::get_vfunc( coordinator, send_message_index ) }
+		} ) )
+			logging::console::print( xs( "force server unavailable: matchmaking report hook could not be initialized" ) );
+
 		return true;
 	}
 
 	void cheat::shutdown( )
 	{
+		forced_server_region.store( features::misc::server_regions::disabled, std::memory_order_relaxed );
+		m_send_gc_message.reset( );
+		m_get_ping_to_data_center.reset( );
 		m_wnd_proc.reset( );
 		m_om_set_render_targets.reset( );
 		m_present.reset( );
@@ -130,6 +174,12 @@ namespace hooks {
 	{
 		rendering::g_context.on_present( thisptr );
 
+		const auto& force_server = settings::g_misc.m_force_server;
+		const auto selected_region = force_server.enabled.value ? force_server.region.value
+			: features::misc::server_regions::disabled;
+		if ( forced_server_region.exchange( selected_region, std::memory_order_relaxed ) != selected_region )
+			last_ping_report_status.store( ping_report_status::waiting, std::memory_order_relaxed );
+
 		if ( !m_wnd_proc.is_enabled( ) && rendering::g_context.get_window( ) )
 		{
 			if ( m_wnd_proc.create( reinterpret_cast< void* >( GetWindowLongPtrW( rendering::g_context.get_window( ), GWLP_WNDPROC ) ), &wnd_proc ) )
@@ -148,6 +198,57 @@ namespace hooks {
 		}
 
 		return m_present.call<HRESULT>( thisptr, sync_interval, flags );
+	}
+
+	int __fastcall cheat::get_ping_to_data_center( std::uintptr_t thisptr, std::uint32_t pop, std::uint32_t* via_relay )
+	{
+		const auto measured_ping = m_get_ping_to_data_center.call<int>( thisptr, pop, via_relay );
+		return features::misc::server_regions::filter_ping(
+			forced_server_region.load( std::memory_order_relaxed ), pop, measured_ping );
+	}
+
+	const char* cheat::force_server_status( )
+	{
+		if ( !force_server_available( ) )
+			return "Unavailable: matchmaking report hook.";
+		switch ( last_ping_report_status.load( std::memory_order_relaxed ) )
+		{
+		case ping_report_status::applied: return "Region applied to matchmaking report.";
+		case ping_report_status::malformed: return "Report blocked: unsupported format.";
+		case ping_report_status::no_centers: return "Report blocked: selected region absent.";
+		case ping_report_status::send_failed: return "Steam rejected the ping report. Retry.";
+		default: return "Waiting for matchmaking ping report.";
+		}
+	}
+
+	int __fastcall cheat::send_gc_message( std::uintptr_t thisptr, std::uint32_t type, const void* data, std::uint32_t size )
+	{
+		namespace report = features::misc::server_ping_report;
+		const auto region = forced_server_region.load( std::memory_order_relaxed );
+		if ( type != ( report::message_type | report::protobuf_flag ) || !features::misc::server_regions::valid( region ) )
+			return m_send_gc_message.call<int>( thisptr, type, data, size );
+
+		std::vector<std::uint8_t> rewritten;
+		const auto result = data ? report::rewrite( { static_cast<const std::uint8_t*>( data ), size }, region, rewritten )
+			: report::result::malformed;
+		if ( result != report::result::rewritten )
+		{
+			const auto status = result == report::result::no_selected_centers
+				? ping_report_status::no_centers : ping_report_status::malformed;
+			last_ping_report_status.store( status, std::memory_order_relaxed );
+			logging::console::print( xs( "force server: blocked ping report for {} ({})" ),
+				features::misc::server_regions::names[ region ], force_server_status( ) );
+			constexpr auto invalid_message{ 4 }; // k_EGCResultInvalidMessage
+			return invalid_message;
+		}
+
+		const auto sent = m_send_gc_message.call<int>( thisptr, type,
+			static_cast<const void*>( rewritten.data( ) ), static_cast<std::uint32_t>( rewritten.size( ) ) );
+		last_ping_report_status.store( sent == 0 ? ping_report_status::applied : ping_report_status::send_failed,
+			std::memory_order_relaxed );
+		logging::console::print( xs( "force server: {} matchmaking ping report, Steam result {}" ),
+			features::misc::server_regions::names[ region ], sent );
+		return sent;
 	}
 
 	HRESULT __fastcall cheat::resize_buffers( IDXGISwapChain* thisptr, UINT buffer_count, UINT width, UINT height, DXGI_FORMAT new_format, UINT swap_chain_flags )

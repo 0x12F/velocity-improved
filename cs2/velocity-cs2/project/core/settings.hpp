@@ -1139,6 +1139,12 @@ namespace settings {
 
 	struct misc
 	{
+		struct force_server
+		{
+			xui::setting enabled{ false, {}, "force server", "misc" };
+			config::val<int> region{ 0, "misc", "server region" };
+		} m_force_server;
+
 		struct scoreboard_weapons
 		{
 			xui::setting enabled{ false, {}, "scoreboard weapons", "misc" };

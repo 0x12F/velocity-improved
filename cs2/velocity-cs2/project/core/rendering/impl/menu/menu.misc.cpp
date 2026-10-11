@@ -1,6 +1,8 @@
 #include <pch/pch.hpp>
 #include <core/settings.hpp>
 #include <core/features/features.hpp>
+#include <core/features/misc/server_regions.hpp>
+#include <core/hooks/hooks.hpp>
 
 #include "../../rendering.hpp"
 
@@ -289,6 +291,19 @@ namespace rendering {
 				xui::checkbox( "reveal radar", m.reveal_radar );
 				xui::checkbox( "preserve killfeed", m.preserve_killfeed );
 				xui::checkbox( "disable game logs", m.disable_game_logs );
+				xui::checkbox( "force server", m.m_force_server.enabled );
+				if ( xui::begin_popup( "##force_server_popup", 300.0f ) )
+				{
+					xui::combo( "region##force_server", m.m_force_server.region.value,
+						features::misc::server_regions::names.data( ),
+						static_cast<int>( features::misc::server_regions::names.size( ) ) );
+					xui::text( "Restart matchmaking after changes.", tokens::col_text_dim );
+					if ( !features::misc::server_regions::valid( m.m_force_server.region.value ) )
+						xui::text( "Select a valid region to apply.", tokens::col_text_dim );
+					else if ( m.m_force_server.enabled.value )
+						xui::text( hooks::cheat::force_server_status( ), tokens::col_text_dim );
+					xui::end_popup( );
+				}
 
 				xui::checkbox( "auto buy", ab.enabled );
 				if ( xui::begin_popup( "##autobuy_popup", 220.0f ) )

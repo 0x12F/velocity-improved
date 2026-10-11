@@ -371,6 +371,8 @@
     <ClCompile Include="project\core\features\changer\impl\weapon_cosmetics.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClInclude Include="project\core\features\misc\server_regions.hpp" />
+    <ClInclude Include="project\core\features\misc\server_ping_report.hpp" />
     <ClInclude Include="project\core\systems\preview\layouts.hpp" />
     <ClCompile Include="project\core\systems\preview\model_preview.cpp" />
     <ClInclude Include="project\core\systems\preview\model_preview.hpp" />

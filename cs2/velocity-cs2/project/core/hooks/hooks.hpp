@@ -56,6 +56,10 @@ namespace hooks {
 		static void __fastcall render_smoke_unmap( std::uintptr_t thisptr, std::uintptr_t ctx, std::size_t size );
 		static void __fastcall draw_flash_effect( std::uintptr_t a1, int a2, std::uintptr_t* a3, std::uintptr_t a4, __m128* a5 );
 		static char __fastcall set_info( std::uintptr_t rcx, std::uintptr_t a2 );
+		static int __fastcall get_ping_to_data_center( std::uintptr_t thisptr, std::uint32_t pop, std::uint32_t* via_relay );
+		static int __fastcall send_gc_message( std::uintptr_t thisptr, std::uint32_t type, const void* data, std::uint32_t size );
+		static bool force_server_available( ) { return m_send_gc_message.is_enabled( ); }
+		static const char* force_server_status( );
 
 	private:
 		inline static hooking::jmp m_present{};
@@ -102,6 +106,8 @@ namespace hooks {
 		inline static hooking::jmp m_render_smoke_unmap{};
 		inline static hooking::jmp m_draw_flash_effect{};
 		inline static hooking::jmp m_set_info{};
+		inline static hooking::jmp m_get_ping_to_data_center{};
+		inline static hooking::jmp m_send_gc_message{};
 	};
 
 	class utility
