@@ -133,6 +133,7 @@ class Shared {
                            const systems::Local::Snapshot& local) const;
     [[nodiscard]] float GetMaxDamage(int hitgroup, int target_armor,
                                      bool has_helmet, int target_team) const;
+    [[nodiscard]] float GetMaxDamage(int hitgroup, const RunContext& ctx) const;
     [[nodiscard]] const WeaponData& GetWeaponData() const {
       return this->m_weapon_data_;
     }
@@ -420,6 +421,18 @@ class Rage {
     float inaccuracy{};
   };
 
+  struct HeadScanStats {
+    int missing{};
+    int invalid_bones{};
+    int damage_pruned{};
+    int points{};
+    int traces{};
+    int hits{};
+    int wrong_hitbox{};
+    int below_damage{};
+    float max_damage{};
+  };
+
   struct Candidate {
     std::uintptr_t pawn{};
     int health{};
@@ -427,6 +440,7 @@ class Rage {
     float min_damage{};
     std::array<Shared::Lagcomp::Record*, kMaxLagcompRecords> records{};
     int record_count{};
+    HeadScanStats head_scan{};
   };
 
   struct ScanHit {
@@ -453,6 +467,7 @@ class Rage {
   struct Target {
     ScanHit hit{};
     float hitchance{};
+    float head_hitchance{};
     float score{};
     bool valid{};
 

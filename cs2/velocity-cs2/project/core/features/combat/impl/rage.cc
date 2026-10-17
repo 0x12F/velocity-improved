@@ -591,10 +591,47 @@ void Rage::RunGun(systems::Input::Usercmd* cmd, const AimContext& ctx,
 
   const auto accurate = best.valid && standing_hc >= needed_hc;
   const auto max_acc = g_shared.IsMaxAccuracy(standing_inaccuracy);
-  const auto force =
-      best.valid && (ctx.on_ground ? (config.force_shot.value && max_acc)
-                                   : (config.force_shot_air.value && max_acc));
+  const auto force = best.valid && standing_hc > 0.0f &&
+                     (ctx.on_ground ? (config.force_shot.value && max_acc)
+                                    : (config.force_shot_air.value && max_acc));
   const auto shot_viable = accurate || force;
+
+  // Log rejection stages even when no shot is fired, without per-point I/O.
+  static auto last_report_time = ULONGLONG{};
+  const auto report_time = GetTickCount64();
+  if (report_time - last_report_time >= 1000) {
+    last_report_time = report_time;
+    HeadScanStats stats{};
+    for (const auto& candidate : candidates) {
+      const auto& head = candidate.head_scan;
+      stats.missing += head.missing;
+      stats.invalid_bones += head.invalid_bones;
+      stats.damage_pruned += head.damage_pruned;
+      stats.points += head.points;
+      stats.traces += head.traces;
+      stats.hits += head.hits;
+      stats.wrong_hitbox += head.wrong_hitbox;
+      stats.below_damage += head.below_damage;
+      stats.max_damage = std::max(stats.max_damage, head.max_damage);
+    }
+    logging::console::Print(
+        "[rage scan] weapon={} head={} body_aim={} min_damage={} "
+        "head_multiplier={:.2f} missing={} invalid_bones={} damage_pruned={} "
+        "points={} traces={} hits={} wrong_hitbox={} below_damage={} "
+        "max_damage={:.0f} head_hc={:.0f}% required_hc={:.0f}% selected={} "
+        "selected_hc={:.0f}% max_accuracy={} forced={}",
+        shared_ctx.item_def_idx, config.hitboxes.values[0],
+        config.body_aim.value,
+        config.min_damage_override.value
+            ? config.min_damage_override_value.value
+            : config.min_damage.value,
+        g_shared.Pen().GetWeaponData().headshot_multiplier, stats.missing,
+        stats.invalid_bones, stats.damage_pruned, stats.points, stats.traces,
+        stats.hits, stats.wrong_hitbox, stats.below_damage, stats.max_damage,
+        best.head_hitchance * 100.0f, needed_hc * 100.0f,
+        best.valid ? best.hit.hitbox_index : -1, best.hitchance * 100.0f,
+        max_acc, force);
+  }
 
   // Autostop planning is independent from firing. Ground movement can use a
   // predicted stopped eye; airborne stopping keeps the current target context.
@@ -859,18 +896,17 @@ std::vector<Rage::ScanHit> Rage::ScanPlayer(
     const math::Vector3& eye, float inaccuracy, const AimContext& ctx,
     Candidate& cand, Shared::Lagcomp::Record* record,
     const systems::Local::Snapshot& local) const {
-  // idk how this happens
-  if (!cand.pawn || cand.record_count <= 0 || cand.health <= 0) return {};
+  if (!cand.pawn || cand.record_count <= 0 || cand.health <= 0 || !record ||
+      !record->valid) {
+    return {};
+  }
 
   const auto& shared_ctx = g_shared.Ctx();
   const auto& config =
       settings::g_combat.m_ragebot.GetGroup(shared_ctx.weapon_type);
 
-  const auto game_scene_node = memory::Read<std::uintptr_t>(
-      cand.pawn + SCHEMA("C_BaseEntity", "m_pGameSceneNode"_hash));
-  const auto hitbox_set = systems::g_hitboxes.Query(game_scene_node);
-  const auto skeleton = g_shared.Lc().GetSkeleton(*record);
   const auto pen_ctx = g_shared.Pen().PrepareTarget(cand.pawn, record);
+  const auto& hitbox_set = pen_ctx.hitboxes;
 
   const auto force_body = config.body_aim.value;
 
@@ -944,18 +980,31 @@ std::vector<Rage::ScanHit> Rage::ScanPlayer(
       }
     }
 
-    if (!hb || hb->bone < 0 || hb->bone >= 28) {
+    if (!hb || hb->bone < 0 || hb->bone >= record->bone_count) {
+      if (hitbox_index == 0) {
+        if (!hb)
+          ++cand.head_scan.missing;
+        else
+          ++cand.head_scan.invalid_bones;
+      }
       continue;
     }
 
-    const auto& bone = skeleton[hb->bone];
+    // Range and penetration can only reduce this upper bound.
+    const auto hitgroup = systems::g_hitboxes.HitgroupFromHitbox(hitbox_index);
+    if (g_shared.Pen().GetMaxDamage(hitgroup, pen_ctx) < cand.min_damage) {
+      if (hitbox_index == 0) ++cand.head_scan.damage_pruned;
+      continue;
+    }
+
+    const auto& bone = record->bones[hb->bone];
     if (bone.position.LengthSqr() < 1.0f) {
       continue;
     }
 
     const auto hitbox_center = (hb->mins + hb->maxs) * 0.5f;
-    const auto center =
-        bone.rotation.RotateVector(hitbox_center) + bone.position;
+    const auto rotation = bone.rotation;
+    const auto center = rotation.RotateVector(hitbox_center) + bone.position;
 
     TracePoint cp{};
     cp.position = center;
@@ -964,6 +1013,7 @@ std::vector<Rage::ScanHit> Rage::ScanPlayer(
     cp.hitbox = *hb;
     cp.is_center = true;
     points.push_back(cp);
+    if (hitbox_index == 0) ++cand.head_scan.points;
 
     if (config.debug_multipoints.value) {
       std::lock_guard lock(m_debug_mtx_);
@@ -972,7 +1022,7 @@ std::vector<Rage::ScanHit> Rage::ScanPlayer(
 
     if (config.pointscale > 0.0f) {
       const auto mps = this->GenerateMultipoints(
-          *hb, center, bone.rotation, config.pointscale, eye, inaccuracy);
+          *hb, center, rotation, config.pointscale, eye, inaccuracy);
 
       for (const auto& mp : mps) {
         const auto duplicate = std::any_of(
@@ -991,6 +1041,7 @@ std::vector<Rage::ScanHit> Rage::ScanPlayer(
         tp.hitbox = *hb;
         tp.is_center = false;
         points.push_back(tp);
+        if (hitbox_index == 0) ++cand.head_scan.points;
 
         if (config.debug_multipoints.value) {
           std::lock_guard lock(m_debug_mtx_);
@@ -1009,7 +1060,7 @@ std::vector<Rage::ScanHit> Rage::ScanPlayer(
   std::array<bool, 19> center_sufficient{};
 
   for (const auto& tp : points) {
-    if (!tp.is_center && tp.hitbox_index >= 0 &&
+    if (!tp.is_center && tp.hitbox_index != 0 && tp.hitbox_index >= 0 &&
         tp.hitbox_index < static_cast<int>(center_sufficient.size()) &&
         center_sufficient[tp.hitbox_index]) {
       continue;
@@ -1022,14 +1073,22 @@ std::vector<Rage::ScanHit> Rage::ScanPlayer(
       continue;
     }
 
+    if (tp.hitbox_index == 0) ++cand.head_scan.traces;
     Shared::Penetration::Result pen{};
     if (!g_shared.Pen().Run(eye, tp.position, pen_ctx, local.pawn, local.team,
                             pen)) {
       continue;
     }
 
+    if (tp.hitbox_index == 0) {
+      ++cand.head_scan.hits;
+      cand.head_scan.max_damage =
+          std::max(cand.head_scan.max_damage, pen.damage);
+      if (pen.hitbox != 0) ++cand.head_scan.wrong_hitbox;
+    }
     const auto is_lethal = pen.damage >= static_cast<float>(cand.health);
     if (!is_lethal && pen.damage < cand.min_damage) {
+      if (tp.hitbox_index == 0) ++cand.head_scan.below_damage;
       continue;
     }
 
@@ -1045,11 +1104,12 @@ std::vector<Rage::ScanHit> Rage::ScanPlayer(
     }
 
     if (!actual_hitbox || actual_hitbox->bone < 0 ||
-        actual_hitbox->bone >= 28) {
+        actual_hitbox->bone >= record->bone_count) {
       continue;
     }
 
-    if (!tp.is_center && tp.hitbox_index == 0 && actual_hitbox_index != 0) {
+    // A point belongs to its requested hitbox, including head centers.
+    if (actual_hitbox_index != tp.hitbox_index) {
       continue;
     }
 
@@ -1153,7 +1213,18 @@ Rage::Target Rage::SelectBest(const AimContext& aim_ctx,
                         return cheap_score(hits[a]) > cheap_score(hits[b]);
                       });
 
+    // Evaluate every head point; damage ranking cannot predict hitchance.
+    std::vector<int> head_indices;
+    for (const auto index : group.hit_indices) {
+      if (hits[index].hitbox_index == 0) head_indices.push_back(index);
+    }
     group.hit_indices.resize(kTopKPerRecord);
+    for (const auto index : head_indices) {
+      if (std::find(group.hit_indices.begin(), group.hit_indices.end(),
+                    index) == group.hit_indices.end()) {
+        group.hit_indices.push_back(index);
+      }
+    }
   }
 
   struct EvaluatedHit {
@@ -1173,6 +1244,7 @@ Rage::Target Rage::SelectBest(const AimContext& aim_ctx,
           ? static_cast<float>(config.hitchance_override_value) / 100.0f
           : static_cast<float>(config.hitchance) / 100.0f;
 
+  auto max_head_hitchance{0.0f};
   for (auto& group : groups) {
     if (!group.record || !group.record->valid) {
       continue;
@@ -1185,7 +1257,7 @@ Rage::Target Rage::SelectBest(const AimContext& aim_ctx,
         continue;
       }
 
-      if (h.bone_index < 0 || h.bone_index >= 28) {
+      if (h.bone_index < 0 || h.bone_index >= h.record->bone_count) {
         continue;
       }
 
@@ -1195,6 +1267,8 @@ Rage::Target Rage::SelectBest(const AimContext& aim_ctx,
                           : g_shared.CalculateHitchance(
                                 h.source_eye.position, h.aim_angle, h.hitbox,
                                 bone, eval_inaccuracy, aim_ctx.spread);
+      if (h.hitbox_index == 0)
+        max_head_hitchance = std::max(max_head_hitchance, hc);
       const auto hp = static_cast<float>(h.health);
       const auto can_kill = h.damage >= hp;
       const auto passes_hitchance = config.no_spread.value || hc >= needed_hc;
@@ -1233,7 +1307,19 @@ Rage::Target Rage::SelectBest(const AimContext& aim_ctx,
     auto is_better = !best.valid || (e.passes_hitchance != best_passes_hitchance
                                          ? e.passes_hitchance
                                          : e.score > best.score);
-    if (best.valid && e.passes_hitchance == best_passes_hitchance &&
+    const auto same_hitchance_tier =
+        best.valid && e.passes_hitchance == best_passes_hitchance;
+    const auto lethal = h.damage >= static_cast<float>(h.health);
+    const auto head = h.hitbox_index == 0;
+    const auto best_head = best.valid && best.hit.hitbox_index == 0;
+    if (same_hitchance_tier) {
+      if (lethal != best.IsLethal()) {
+        is_better = lethal;
+      } else if (head != best_head) {
+        is_better = head;
+      }
+    }
+    if (same_hitchance_tier && lethal == best.IsLethal() && head == best_head &&
         std::fabsf(e.score - best.score) < 0.01f) {
       if (h.record->tick != best.hit.record->tick) {
         is_better = h.record->tick > best.hit.record->tick;
@@ -1252,13 +1338,14 @@ Rage::Target Rage::SelectBest(const AimContext& aim_ctx,
     }
   }
 
+  best.head_hitchance = max_head_hitchance;
   return best;
 }
 
 float Rage::EvaluateHitchance(const ScanHit& hit, const AimContext& ctx,
                               float inaccuracy) const {
   if (!hit.record || !hit.record->valid || hit.bone_index < 0 ||
-      hit.bone_index >= 28) {
+      hit.bone_index >= hit.record->bone_count) {
     return 0.0f;
   }
 
@@ -1315,16 +1402,15 @@ std::vector<Rage::ScanHit> Rage::ScanTaser(
       }
 
       record->Apply();
-      const auto skeleton = g_shared.Lc().GetSkeleton(*record);
 
       for (auto i = 0; i < hitbox_set.count; ++i) {
         const auto& hb = hitbox_set.entries[i];
 
-        if (hb.bone < 0 || hb.bone >= 28) {
+        if (hb.bone < 0 || hb.bone >= record->bone_count) {
           continue;
         }
 
-        const auto& bone = skeleton[hb.bone];
+        const auto& bone = record->bones[hb.bone];
         if (bone.position.LengthSqr() < 1.0f) {
           continue;
         }
@@ -1438,7 +1524,6 @@ std::vector<Rage::ScanHit> Rage::ScanKnife(
       }
 
       record->Apply();
-      const auto skeleton = g_shared.Lc().GetSkeleton(*record);
 
       auto backstab{false};
       {
@@ -1466,11 +1551,11 @@ std::vector<Rage::ScanHit> Rage::ScanKnife(
       for (auto i = 0; i < hitbox_set.count; ++i) {
         const auto& hb = hitbox_set.entries[i];
 
-        if (hb.bone < 0 || hb.bone >= 28) {
+        if (hb.bone < 0 || hb.bone >= record->bone_count) {
           continue;
         }
 
-        const auto& bone = skeleton[hb.bone];
+        const auto& bone = record->bones[hb.bone];
         if (bone.position.LengthSqr() < 1.0f) {
           continue;
         }
@@ -2070,18 +2155,9 @@ bool Rage::ShouldStopMovement(const AimContext& ctx) const {
 
 float Rage::GetMinDamage(const settings::Combat::Ragebot::WeaponGroup& config,
                          int target_health, bool override_active) const {
-  if (override_active) {
-    return static_cast<float>(config.min_damage_override_value);
-  }
-
-  const auto base = static_cast<float>(config.min_damage);
-
-  const auto hp = static_cast<float>(target_health);
-  if (hp < base) {
-    return hp + 1.0f;
-  }
-
-  return base;
+  const auto configured = static_cast<float>(
+      override_active ? config.min_damage_override_value : config.min_damage);
+  return std::min(configured, static_cast<float>(target_health));
 }
 
 float Rage::GetKnifeDamage(float raw, int armor, float armor_ratio) const {

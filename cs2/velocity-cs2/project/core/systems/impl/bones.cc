@@ -6,6 +6,18 @@
 
 namespace systems {
 
+int Bones::GetCount(std::uintptr_t game_scene_node) {
+  if (!game_scene_node) return 0;
+  const auto model_handle =
+      memory::Read<std::uintptr_t>(game_scene_node + 0x1e0);
+  if (!model_handle) return 0;
+  const auto model = memory::Read<std::uintptr_t>(model_handle);
+  if (!model) return 0;
+  // CModel::m_modelSkeleton starts with CRenderSkeleton::m_boneName.
+  const auto count = memory::Read<int>(model + 0x188);
+  return count > 0 && count <= 1024 ? count : 0;
+}
+
 Bones::Data Bones::Get(std::uintptr_t entity, std::uint32_t bone_id) {
   Data result{};
 
@@ -76,9 +88,7 @@ std::uintptr_t Bones::GetBoneCache(std::uintptr_t entity, int* out_count) {
   }
 
   if (out_count) {
-    *out_count = memory::Read<int>(
-        game_scene_node + SCHEMA("CSkeletonInstance", "m_modelState"_hash) +
-        0x8c);
+    *out_count = GetCount(game_scene_node);
   }
 
   return bone_cache;

@@ -107,6 +107,7 @@ Hitboxes::Set Hitboxes::Query(std::uintptr_t game_scene_node, bool seh) {
     auto& hb = result.entries[result.count++];
     hb.index = i;
     hb.bone = bone;
+    hb.hitgroup = memory::Read<int>(base + 0x38);
     hb.mins = memory::Read<math::Vector3>(base + 0x18);
     hb.maxs = memory::Read<math::Vector3>(base + 0x24);
     hb.radius = radius;

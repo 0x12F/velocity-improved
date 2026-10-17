@@ -22,6 +22,8 @@ struct BulletTraceRecord {
   std::uint8_t pad[3];
 };
 
+static_assert(sizeof(BulletTraceRecord) == 0x18);
+
 }  // namespace detail
 
 void Shared::Penetration::Prepare(std::uintptr_t weapon_vdata,
@@ -323,6 +325,15 @@ float Shared::Penetration::GetMaxDamage(int hitgroup, int target_armor,
   return damage;
 }
 
+float Shared::Penetration::GetMaxDamage(int hitgroup,
+                                        const RunContext& ctx) const {
+  auto damage = this->m_weapon_data_.damage;
+  this->ScaleDamage(hitgroup, ctx.target_armor, ctx.has_helmet, ctx.target_team,
+                    ctx.armor_ratio, ctx.headshot_multiplier, ctx.scales,
+                    damage);
+  return damage;
+}
+
 void Shared::Penetration::ScaleDamage(int hitgroup, int armor, bool has_helmet,
                                       int team, float armor_ratio,
                                       float headshot_multiplier,
@@ -390,9 +401,7 @@ bool Shared::Lagcomp::Record::Setup(std::uintptr_t pawn) {
     return false;
   }
 
-  this->bone_count = memory::Read<int>(
-      this->game_scene_node + SCHEMA("CSkeletonInstance", "m_modelState"_hash) +
-      0x8c);
+  this->bone_count = systems::Bones::GetCount(this->game_scene_node);
   if (this->bone_count <= 0) {
     return false;
   }
@@ -987,12 +996,11 @@ float Shared::CalculateHitchance(const math::Vector3& shoot_position,
     return 0.0f;
   }
 
-  const auto capsule_start =
-      bone.rotation.RotateVector(hitbox.mins) + bone.position;
-  const auto capsule_end =
-      bone.rotation.RotateVector(hitbox.maxs) + bone.position;
+  const auto rotation = bone.rotation;
+  const auto capsule_start = rotation.RotateVector(hitbox.mins) + bone.position;
+  const auto capsule_end = rotation.RotateVector(hitbox.maxs) + bone.position;
   const auto is_capsule = hitbox.radius > 0.001f;
-  auto inverse_rotation = bone.rotation;
+  auto inverse_rotation = rotation;
   inverse_rotation.x = -inverse_rotation.x;
   inverse_rotation.y = -inverse_rotation.y;
   inverse_rotation.z = -inverse_rotation.z;
@@ -1438,17 +1446,19 @@ bool Shared::IsMaxAccuracy(float inaccuracy) const {
         return false;
       }
 
-      if (is_ducking) {
-        const auto rounded = std::floorf(inaccuracy * 300.0f) / 300.0f;
-        return rounded < inaccuracy;
+      if (speed > 0.1f || !std::isfinite(inaccuracy) || inaccuracy < 0.0f) {
+        return false;
       }
 
-      if (speed <= 0.1f) {
-        const auto rounded = std::floorf(inaccuracy * 170.0f) / 170.0f;
-        return rounded < inaccuracy;
-      }
-
-      return false;
+      // Firing-mode values contain separate primary and scoped floats.
+      const auto accuracy_offset =
+          is_ducking ? SCHEMA("CCSWeaponBaseVData", "m_flInaccuracyCrouch"_hash)
+                     : SCHEMA("CCSWeaponBaseVData", "m_flInaccuracyStand"_hash);
+      const auto minimum_inaccuracy = memory::Read<float>(
+          this->m_ctx_.weapon_vdata + accuracy_offset + sizeof(float));
+      constexpr auto kAccuracyTolerance{0.0001f};
+      return std::isfinite(minimum_inaccuracy) && minimum_inaccuracy > 0.0f &&
+             inaccuracy <= minimum_inaccuracy + kAccuracyTolerance;
     }
 
     return speed <= this->m_ctx_.weapon_max_speed * 0.34f;
@@ -1530,90 +1540,95 @@ bool Shared::RayVsCapsule(const math::Vector3& ray_origin,
                           const math::Vector3& capsule_a,
                           const math::Vector3& capsule_b, float radius,
                           float& out_fraction) const {
-  const auto ab = capsule_b - capsule_a;
-  const auto ab_sq = ab.Dot(ab);
-  const auto oc = ray_origin - capsule_a;
-  const auto dir_sq = ray_dir.Dot(ray_dir);
-
-  if (dir_sq < 1e-8f) {
+  // Long traces against small capsules lose their discriminant in float.
+  // Keep all intermediate geometry in double, including vector products.
+  using Vector = std::array<double, 3>;
+  const auto subtract = [](const math::Vector3& a, const math::Vector3& b) {
+    return Vector{static_cast<double>(a.x) - b.x,
+                  static_cast<double>(a.y) - b.y,
+                  static_cast<double>(a.z) - b.z};
+  };
+  const auto dot = [](const Vector& a, const Vector& b) {
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  };
+  const Vector direction{ray_dir.x, ray_dir.y, ray_dir.z};
+  const auto ab = subtract(capsule_b, capsule_a);
+  const auto oc = subtract(ray_origin, capsule_a);
+  const auto ab_sq = dot(ab, ab);
+  const auto dir_sq = dot(direction, direction);
+  const auto radius_sq = static_cast<double>(radius) * radius;
+  if (!std::isfinite(ab_sq) || !std::isfinite(dot(oc, oc)) ||
+      !std::isfinite(dir_sq) || !std::isfinite(radius_sq) || radius < 0.0f ||
+      dir_sq < 1.0e-12) {
     return false;
   }
 
-  auto best_t{1.0f};
+  const auto projection =
+      ab_sq > 1.0e-12 ? std::clamp(dot(oc, ab) / ab_sq, 0.0, 1.0) : 0.0;
+  Vector distance{};
+  for (auto i = 0; i < 3; ++i) {
+    distance[i] = oc[i] - ab[i] * projection;
+  }
+  if (dot(distance, distance) <= radius_sq) {
+    out_fraction = 0.0f;
+    return true;
+  }
+
+  auto best_t{1.0};
   auto hit{false};
-
-  if (ab_sq > 1e-8f) {
-    const float m = ab.Dot(ray_dir) / ab_sq;
-    const float n = ab.Dot(oc) / ab_sq;
-
-    const auto d_perp = ray_dir - ab * m;
-    const auto oc_perp = oc - ab * n;
-
-    const auto a = d_perp.Dot(d_perp);
-    const auto half_b = d_perp.Dot(oc_perp);
-    const auto c = oc_perp.Dot(oc_perp) - radius * radius;
-
-    if (a > 1e-8f) {
-      const auto disc = half_b * half_b - a * c;
-      if (disc >= 0.0f) {
-        const auto sqrt_disc = std::sqrt(disc);
-
-        for (int r = 0; r < 2; r++) {
-          const auto t = (-half_b + (r == 0 ? -sqrt_disc : sqrt_disc)) / a;
-          if (t < 0.0f || t >= best_t) {
-            continue;
-          }
-
-          const auto s = m * t + n;
-          if (s >= 0.0f && s <= 1.0f) {
-            best_t = t;
-            hit = true;
-            break;
-          }
+  if (ab_sq > 1.0e-12) {
+    const auto m = dot(ab, direction) / ab_sq;
+    const auto n = dot(ab, oc) / ab_sq;
+    Vector d_perp{}, oc_perp{};
+    for (auto i = 0; i < 3; ++i) {
+      d_perp[i] = direction[i] - ab[i] * m;
+      oc_perp[i] = oc[i] - ab[i] * n;
+    }
+    const auto a = dot(d_perp, d_perp);
+    const auto half_b = dot(d_perp, oc_perp);
+    const auto c = dot(oc_perp, oc_perp) - radius_sq;
+    const auto discriminant = std::fma(half_b, half_b, -a * c);
+    if (a > 1.0e-12 && discriminant >= 0.0) {
+      const auto root = std::sqrt(discriminant);
+      for (const auto sign : {-1.0, 1.0}) {
+        const auto t = (-half_b + sign * root) / a;
+        const auto along_axis = m * t + n;
+        if (t >= 0.0 && t <= best_t && along_axis >= 0.0 && along_axis <= 1.0) {
+          best_t = t;
+          hit = true;
+          break;
         }
       }
     }
   }
 
   const math::Vector3 caps[]{capsule_a, capsule_b};
-
-  for (int i = 0; i < 2; i++) {
-    const auto co = ray_origin - caps[i];
-    const auto half_b = co.Dot(ray_dir);
-    const auto c = co.Dot(co) - radius * radius;
-    const auto disc = half_b * half_b - dir_sq * c;
-
-    if (disc < 0.0f) {
+  for (auto i = 0; i < 2; ++i) {
+    const auto co = subtract(ray_origin, caps[i]);
+    const auto half_b = dot(co, direction);
+    const auto c = dot(co, co) - radius_sq;
+    const auto discriminant = std::fma(half_b, half_b, -dir_sq * c);
+    if (discriminant < 0.0) {
       continue;
     }
-
-    const auto sqrt_disc = std::sqrt(disc);
-
-    for (int r = 0; r < 2; r++) {
-      const auto t = (-half_b + (r == 0 ? -sqrt_disc : sqrt_disc)) / dir_sq;
-      if (t < 0.0f || t >= best_t) {
+    const auto root = std::sqrt(discriminant);
+    for (const auto sign : {-1.0, 1.0}) {
+      const auto t = (-half_b + sign * root) / dir_sq;
+      if (t < 0.0 || t > best_t) {
         continue;
       }
-
-      if (ab_sq > 1e-8f) {
-        const auto hit_point = ray_origin + ray_dir * t - caps[i];
-        const auto sign = i == 0 ? -1.0f : 1.0f;
-
-        if (sign * ab.Dot(hit_point) < 0.0f) {
-          continue;
-        }
+      const auto along_axis = dot(ab, co) + dot(ab, direction) * t;
+      if (ab_sq > 1.0e-12 && (i == 0 ? along_axis > 0.0 : along_axis < 0.0)) {
+        continue;
       }
-
       best_t = t;
       hit = true;
       break;
     }
   }
-
   if (hit) {
-    out_fraction = best_t;
+    out_fraction = static_cast<float>(best_t);
   }
-
   return hit;
 }
 

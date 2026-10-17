@@ -341,6 +341,7 @@ class Bones {
     math::Quaternion rotation{};
   };
 
+  [[nodiscard]] static int GetCount(std::uintptr_t game_scene_node);
   [[nodiscard]] Data Get(std::uintptr_t entity, std::uint32_t bone_id);
   [[nodiscard]] std::array<Data, 27> GetSkeleton(std::uintptr_t entity);
 
@@ -372,6 +373,7 @@ class Hitboxes {
   struct Entry {
     int index{-1};
     int bone{-1};
+    int hitgroup{};
     math::Vector3 mins{};
     math::Vector3 maxs{};
     float radius{};
