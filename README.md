@@ -46,10 +46,20 @@ copy, set `VCPKG_ROOT` to that installation directory before building.
 Contributions are welcome. If you want to help, open a pull request with a clear
 description of what changed and why.
 
-Try to keep changes focused and easy to review. Match the existing style, use
-clear names, avoid unnecessary rewrites, and prefer small practical improvements
-over large unrelated changes.
+Follow the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)
+for first-party code. Use `.cc` source files, `.h` headers, lowercase filenames
+with underscores, and path-based `VELOCITY_..._H_` header guards. Include project
+headers using quoted paths relative to `project/`.
+Both build configurations target C++20.
+
+Bundled code under `project/external/` retains its upstream style and filenames.
+Windows ABI declarations, engine-facing names in strings, and third-party API
+names must retain their required spelling. The existing precompiled-header
+build requires `pch/pch.h` first in translation units that use it. Keep these
+platform integration constraints when making style changes.
 
 ## Why
 
 I was bored.
+
+![image](media/menu.jpg)

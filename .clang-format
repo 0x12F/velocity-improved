@@ -1,0 +1,14 @@
+BasedOnStyle: Google
+# MSVC requires the precompiled header before any other declarations.
+IncludeCategories:
+  - Regex: '^"pch/pch\.h"$'
+    Priority: -1
+  # PHNT's declarations require its Windows compatibility header first.
+  - Regex: '^<external/phnt/phnt_windows\.h>$'
+    Priority: 0
+  - Regex: '^<.*\.h>'
+    Priority: 1
+  - Regex: '^<.*'
+    Priority: 2
+  - Regex: '.*'
+    Priority: 3
