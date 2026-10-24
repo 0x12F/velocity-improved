@@ -529,18 +529,11 @@ void Rage::RunGun(systems::Input::Usercmd* cmd, const AimContext& ctx,
     for (auto i = 0; i < eye_candidates.count; ++i) {
       const auto eye = eye_candidates.entries[i].position + eye_offset;
       auto hits = this->ScanPlayers(eye, inaccuracy, ctx, candidates, local);
-      auto found_direct{false};
-
       for (auto& hit : hits) {
         auto source_eye = eye_candidates.entries[i];
         source_eye.position = eye;
         hit.source_eye = source_eye;
-        found_direct = found_direct || !hit.penetrated;
         hits_out.push_back(std::move(hit));
-      }
-
-      if (found_direct) {
-        break;
       }
     }
 
@@ -575,11 +568,6 @@ void Rage::RunGun(systems::Input::Usercmd* cmd, const AimContext& ctx,
   const auto primary_eye = eye_candidates.entries[0].position;
   const auto& prestate = systems::g_prediction.Pre();
 
-  // Current-shot selection is always based on current engine shoot-history.
-  auto current_hits = scan_from_eye_candidates({}, ctx.predicted_inaccuracy);
-  const auto best =
-      this->SelectBest(ctx, current_hits, ctx.predicted_inaccuracy);
-
   const auto needed_hc =
       config.hitchance_override.value
           ? static_cast<float>(config.hitchance_override_value) / 100.0f
@@ -592,12 +580,11 @@ void Rage::RunGun(systems::Input::Usercmd* cmd, const AimContext& ctx,
   const auto standing_inaccuracy = duckpeek_active
                                        ? this->GetStandingInaccuracy(local, ctx)
                                        : ctx.predicted_inaccuracy;
-  const auto standing_hc =
-      best.valid
-          ? (duckpeek_active
-                 ? this->EvaluateHitchance(best.hit, ctx, standing_inaccuracy)
-                 : best.hitchance)
-          : 0.0f;
+  // select and gate the shot using the same accuracy state. Duckpeek fires
+  // after standing up, so crouched accuracy must not determine its target
+  auto current_hits = scan_from_eye_candidates({}, standing_inaccuracy);
+  const auto best = this->SelectBest(ctx, current_hits, standing_inaccuracy);
+  const auto standing_hc = best.valid ? best.hitchance : 0.0f;
 
   const auto accurate = best.valid && standing_hc >= needed_hc;
   const auto max_acc = g_shared.IsMaxAccuracy(standing_inaccuracy);
@@ -606,7 +593,7 @@ void Rage::RunGun(systems::Input::Usercmd* cmd, const AimContext& ctx,
                                     : (config.force_shot_air.value && max_acc));
   const auto shot_viable = accurate || force;
 
-  // Log rejection stages even when no shot is fired, without per-point I/O.
+  // log rejection stages even when no shot is fired, without per point i/o
   static auto last_report_time = ULONGLONG{};
   const auto report_time = GetTickCount64();
   if (report_time - last_report_time >= 1000) {
@@ -643,8 +630,8 @@ void Rage::RunGun(systems::Input::Usercmd* cmd, const AimContext& ctx,
         max_acc, force);
   }
 
-  // Autostop planning is independent from firing. Ground movement can use a
-  // predicted stopped eye; airborne stopping keeps the current target context.
+  // autostop planning is independent from firing. Ground movement can use a
+  // predicted stopped eye, airborne stopping keeps the current target context
   if (!shot_viable && this->ShouldStopMovement(ctx)) {
     const auto stop = this->PredictStop(ctx, primary_eye, local);
     if (stop) {
@@ -653,7 +640,7 @@ void Rage::RunGun(systems::Input::Usercmd* cmd, const AimContext& ctx,
           scan_from_eye_candidates(future_offset, stop->inaccuracy);
       const auto planned =
           this->SelectBest(ctx, planned_hits, stop->inaccuracy);
-      this->m_should_stop_ = planned.valid;
+      this->m_should_stop_ = best.valid || planned.valid;
     } else {
       this->m_should_stop_ = best.valid;
     }
@@ -1067,15 +1054,8 @@ std::vector<Rage::ScanHit> Rage::ScanPlayer(
 
   std::vector<ScanHit> results;
   results.reserve(static_cast<std::size_t>(scan_count) * 2);
-  std::array<bool, 19> center_sufficient{};
 
   for (const auto& tp : points) {
-    if (!tp.is_center && tp.hitbox_index != 0 && tp.hitbox_index >= 0 &&
-        tp.hitbox_index < static_cast<int>(center_sufficient.size()) &&
-        center_sufficient[tp.hitbox_index]) {
-      continue;
-    }
-
     const auto aim = math::helpers::CalculateAngle(eye, tp.position);
     const auto fov = math::helpers::AngleDistance(ctx.view_angles, aim);
 
@@ -1123,13 +1103,6 @@ std::vector<Rage::ScanHit> Rage::ScanPlayer(
       continue;
     }
 
-    if (tp.is_center && actual_hitbox_index == tp.hitbox_index &&
-        tp.hitbox_index >= 0 &&
-        tp.hitbox_index < static_cast<int>(center_sufficient.size())) {
-      center_sufficient[tp.hitbox_index] =
-          !pen.penetrated || pen.damage >= static_cast<float>(cand.health);
-    }
-
     ScanHit h{};
     h.position = tp.position;
     h.aim_angle = aim;
@@ -1170,73 +1143,8 @@ Rage::Target Rage::SelectBest(const AimContext& aim_ctx,
     return 0;
   };
 
-  struct RecordGroup {
-    Shared::Lagcomp::Record* record;
-    std::vector<int> hit_indices;
-  };
-
-  std::vector<RecordGroup> groups;
-  groups.reserve(16);
-
-  for (auto i = 0; i < static_cast<int>(hits.size()); ++i) {
-    auto rec = hits[i].record;
-    auto found{false};
-
-    for (auto& g : groups) {
-      if (g.record == rec) {
-        g.hit_indices.push_back(i);
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      RecordGroup g{};
-      g.record = rec;
-      g.hit_indices.reserve(16);
-      g.hit_indices.push_back(i);
-      groups.push_back(std::move(g));
-    }
-  }
-
-  constexpr auto kTopKPerRecord{8};
-
-  auto cheap_score = [&](const ScanHit& h) -> float {
-    const auto lethal_bonus =
-        h.damage >= static_cast<float>(h.health) ? 100000.0f : 0.0f;
-    const auto direct_bonus = h.penetrated ? 0.0f : 5000.0f;
-    const auto center_bonus = h.is_center ? 2000.0f : 0.0f;
-
-    return lethal_bonus + direct_bonus + center_bonus + h.damage * 20.0f +
-           static_cast<float>(hitgroup_priority(h.hitbox_index)) * 10.0f -
-           h.fov;
-  };
-
-  for (auto& group : groups) {
-    if (static_cast<int>(group.hit_indices.size()) <= kTopKPerRecord) {
-      continue;
-    }
-
-    std::partial_sort(group.hit_indices.begin(),
-                      group.hit_indices.begin() + kTopKPerRecord,
-                      group.hit_indices.end(), [&](int a, int b) {
-                        return cheap_score(hits[a]) > cheap_score(hits[b]);
-                      });
-
-    // Evaluate every head point; damage ranking cannot predict hitchance.
-    std::vector<int> head_indices;
-    for (const auto index : group.hit_indices) {
-      if (hits[index].hitbox_index == 0) head_indices.push_back(index);
-    }
-    group.hit_indices.resize(kTopKPerRecord);
-    for (const auto index : head_indices) {
-      if (std::find(group.hit_indices.begin(), group.hit_indices.end(),
-                    index) == group.hit_indices.end()) {
-        group.hit_indices.push_back(index);
-      }
-    }
-  }
-
+  // damage alone cannot tell whether a point passes hitchance. evaluate every
+  // traced point so a high damage miss cannot hide an accurate body shot.
   struct EvaluatedHit {
     int hit_index;
     float hitchance;
@@ -1255,48 +1163,42 @@ Rage::Target Rage::SelectBest(const AimContext& aim_ctx,
           : static_cast<float>(config.hitchance) / 100.0f;
 
   auto max_head_hitchance{0.0f};
-  for (auto& group : groups) {
-    if (!group.record || !group.record->valid) {
+  for (auto idx = 0; idx < static_cast<int>(hits.size()); ++idx) {
+    const auto& h = hits[idx];
+
+    if (!h.record || !h.record->valid) {
       continue;
     }
 
-    for (const auto idx : group.hit_indices) {
-      const auto& h = hits[idx];
-
-      if (!h.record || !h.record->valid) {
-        continue;
-      }
-
-      if (h.bone_index < 0 || h.bone_index >= h.record->bone_count) {
-        continue;
-      }
-
-      const auto& bone = group.record->bones[h.bone_index];
-      const auto hc = config.no_spread.value
-                          ? 1.0f
-                          : g_shared.CalculateHitchance(
-                                h.source_eye.position, h.aim_angle, h.hitbox,
-                                bone, eval_inaccuracy, aim_ctx.spread);
-      if (h.hitbox_index == 0)
-        max_head_hitchance = std::max(max_head_hitchance, hc);
-      const auto hp = static_cast<float>(h.health);
-      const auto can_kill = h.damage >= hp;
-      const auto passes_hitchance = config.no_spread.value || hc >= needed_hc;
-      auto score = passes_hitchance ? 1000000.0f : 0.0f;
-
-      if (can_kill) {
-        score += 100000.0f + hc * 10000.0f;
-      } else {
-        score += h.damage * hc * 100.0f + h.damage * 5.0f;
-      }
-
-      score += h.penetrated ? 0.0f : 250.0f;
-      score += h.is_center ? 50.0f : 0.0f;
-      score += static_cast<float>(hitgroup_priority(h.hitbox_index)) * 2.0f;
-      score -= h.fov * 0.1f;
-
-      evaluated.push_back(EvaluatedHit{idx, hc, score, passes_hitchance});
+    if (h.bone_index < 0 || h.bone_index >= h.record->bone_count) {
+      continue;
     }
+
+    const auto& bone = h.record->bones[h.bone_index];
+    const auto hc = config.no_spread.value
+                        ? 1.0f
+                        : g_shared.CalculateHitchance(
+                              h.source_eye.position, h.aim_angle, h.hitbox,
+                              bone, eval_inaccuracy, aim_ctx.spread);
+    if (h.hitbox_index == 0)
+      max_head_hitchance = std::max(max_head_hitchance, hc);
+    const auto hp = static_cast<float>(h.health);
+    const auto can_kill = h.damage >= hp;
+    const auto passes_hitchance = config.no_spread.value || hc >= needed_hc;
+    auto score = passes_hitchance ? 1000000.0f : 0.0f;
+
+    if (can_kill) {
+      score += 100000.0f + hc * 10000.0f;
+    } else {
+      score += h.damage * hc * 100.0f + h.damage * 5.0f;
+    }
+
+    score += h.penetrated ? 0.0f : 250.0f;
+    score += h.is_center ? 50.0f : 0.0f;
+    score += static_cast<float>(hitgroup_priority(h.hitbox_index)) * 2.0f;
+    score -= h.fov * 0.1f;
+
+    evaluated.push_back(EvaluatedHit{idx, hc, score, passes_hitchance});
   }
 
   Target best{};
@@ -1320,16 +1222,10 @@ Rage::Target Rage::SelectBest(const AimContext& aim_ctx,
     const auto same_hitchance_tier =
         best.valid && e.passes_hitchance == best_passes_hitchance;
     const auto lethal = h.damage >= static_cast<float>(h.health);
-    const auto head = h.hitbox_index == 0;
-    const auto best_head = best.valid && best.hit.hitbox_index == 0;
-    if (same_hitchance_tier) {
-      if (lethal != best.IsLethal()) {
-        is_better = lethal;
-      } else if (head != best_head) {
-        is_better = head;
-      }
+    if (same_hitchance_tier && lethal != best.IsLethal()) {
+      is_better = lethal;
     }
-    if (same_hitchance_tier && lethal == best.IsLethal() && head == best_head &&
+    if (same_hitchance_tier && lethal == best.IsLethal() &&
         std::fabsf(e.score - best.score) < 0.01f) {
       if (h.record->tick != best.hit.record->tick) {
         is_better = h.record->tick > best.hit.record->tick;
@@ -1352,18 +1248,6 @@ Rage::Target Rage::SelectBest(const AimContext& aim_ctx,
   return best;
 }
 
-float Rage::EvaluateHitchance(const ScanHit& hit, const AimContext& ctx,
-                              float inaccuracy) const {
-  if (!hit.record || !hit.record->valid || hit.bone_index < 0 ||
-      hit.bone_index >= hit.record->bone_count) {
-    return 0.0f;
-  }
-
-  return g_shared.CalculateHitchance(
-      hit.source_eye.position, hit.aim_angle, hit.hitbox,
-      hit.record->bones[hit.bone_index], inaccuracy, ctx.spread);
-}
-
 float Rage::GetStandingInaccuracy(const systems::Local::Snapshot& local,
                                   const AimContext& ctx) const {
   auto velocity = ctx.velocity;
@@ -1379,9 +1263,10 @@ float Rage::GetStandingInaccuracy(const systems::Local::Snapshot& local,
     return ctx.predicted_inaccuracy;
   }
 
+  const auto mode_offset = ctx.is_scoped ? sizeof(float) : 0;
   const auto inaccuracy_stand = memory::Read<float>(
       shared_ctx.weapon_vdata +
-      SCHEMA("CCSWeaponBaseVData", "m_flInaccuracyStand"_hash));
+      SCHEMA("CCSWeaponBaseVData", "m_flInaccuracyStand"_hash) + mode_offset);
   return std::max(inaccuracy_stand,
                   g_shared.GetInaccuracyAtVelocity(local.pawn, velocity));
 }

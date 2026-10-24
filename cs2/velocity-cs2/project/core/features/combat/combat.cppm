@@ -521,9 +521,6 @@ class Rage {
   [[nodiscard]] Target SelectBest(const AimContext& aim_ctx,
                                   const std::vector<ScanHit>& hits,
                                   float eval_inaccuracy) const;
-  [[nodiscard]] float EvaluateHitchance(const ScanHit& hit,
-                                        const AimContext& ctx,
-                                        float inaccuracy) const;
   [[nodiscard]] float GetStandingInaccuracy(
       const systems::Local::Snapshot& local, const AimContext& ctx) const;
 

@@ -60,9 +60,9 @@ const ::protection::addresses::Address& draw_flash_effect = ADDRESS_IMPL(
 
 const ::protection::addresses::Address& draw_legs =
     ADDRESS_IMPL(::protection::addresses::Hash(
-                     "client.dll:4C8BDC555356574157498DAB78FBFFFF"),
+                     "client.dll:4C8BDC555356574156F"),
                  ::protection::addresses::AddressType::kPattern,
-                 "client.dll:4C8BDC555356574157498DAB78FBFFFF");
+                 "client.dll:4C8BDC555356574156");
 
 const ::protection::addresses::Address& draw_overhead = ADDRESS_IMPL(
     ::protection::addresses::Hash("client.dll:40534883EC??488BD983FA??75??"),
@@ -432,9 +432,9 @@ const ::protection::addresses::Address& override_view =
 
 const ::protection::addresses::Address& parse_report_hit =
     ADDRESS_IMPL(::protection::addresses::Hash(
-                     "client.dll:48895C24184889742420574883EC20488D05D2935B01"),
+                     "client.dll:48895C24184889742420574883EC20488D05A2825901"),
                  ::protection::addresses::AddressType::kPattern,
-                 "client.dll:48895C24184889742420574883EC20488D05D2935B01");
+                 "client.dll:48895C24184889742420574883EC20488D05A2825901");
 
 const ::protection::addresses::Address& particle_create_effect = ADDRESS_IMPL(
     ::protection::addresses::Hash("client.dll:4C8BDC534881EC90000000F20F1005"),
