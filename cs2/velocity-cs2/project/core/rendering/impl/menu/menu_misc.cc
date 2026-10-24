@@ -86,6 +86,7 @@ void Menu::DrawMisc(float group_w) const {
       this->m_w_ - tokens::gap * 2.0f - tokens::sidebar_w - tokens::gap;
   const auto col_w = (content_w - tokens::gap) * 0.5f;
   const auto right_x = content_x + col_w + tokens::gap;
+  const auto panel_h = (this->m_body_h_ - tokens::gap) * 0.5f;
 
   const auto subtab = this->m_subtab_;
 
@@ -99,7 +100,7 @@ void Menu::DrawMisc(float group_w) const {
     auto& mov = settings::g_movement;
     auto& ab = m.m_autobuy;
 
-    if (xui::begin_child("##misc_impacts", col_w)) {
+    if (xui::begin_child("##misc_impacts", col_w, panel_h, true)) {
       xui::checkbox("hit logs", impacts.hit_log);
       if (xui::begin_popup("##hitlog_popup", 220.0f)) {
         xui::slider_float("duration##hl", impacts.hit_log_duration, 0.5f, 10.0f,
@@ -235,7 +236,8 @@ void Menu::DrawMisc(float group_w) const {
       xui::end_child();
     }
 
-    if (xui::begin_child("##misc_visuals", col_w)) {
+    xui::layout::set_cursor(content_x - wx, body_y - wy + panel_h + tokens::gap);
+    if (xui::begin_child("##misc_visuals", col_w, panel_h, true)) {
       xui::checkbox("projectile trajectory", traj.enabled);
       if (xui::begin_popup("##traj_popup", 220.0f)) {
         xui::checkbox("straight throw", traj.straight_throw);
@@ -275,7 +277,7 @@ void Menu::DrawMisc(float group_w) const {
 
     xui::layout::set_cursor(right_x - wx, body_y - wy);
 
-    if (xui::begin_child("##misc_movement", col_w)) {
+    if (xui::begin_child("##misc_movement", col_w, panel_h, true)) {
       xui::checkbox("bhop", mov.bhop);
       xui::checkbox("airstrafe", mov.airstrafe);
 
@@ -309,7 +311,8 @@ void Menu::DrawMisc(float group_w) const {
       xui::end_child();
     }
 
-    if (xui::begin_child("##misc_other", col_w)) {
+    xui::layout::set_cursor(right_x - wx, body_y - wy + panel_h + tokens::gap);
+    if (xui::begin_child("##misc_other", col_w, panel_h, true)) {
       xui::checkbox("reveal radar", m.reveal_radar);
       xui::checkbox("preserve killfeed", m.preserve_killfeed);
       xui::checkbox("disable game logs", m.disable_game_logs);

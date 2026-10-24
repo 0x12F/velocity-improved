@@ -1766,10 +1766,18 @@ namespace xui {
 		auto pwin = layout::current_window( );
 		const auto consumed_y = pwin->cursor_y + ( pwin->line_h > 0.0f ? pwin->line_h + s.item_spacing_y : 0.0f );
 		const auto max_h = parent->bounds.h - consumed_y - s.window_pad_y;
+		const auto auto_height = h <= 0.0f && !scrollable;
+		const auto content_h = actual_h;
 
 		if ( max_h > 0.0f )
 		{
 			actual_h = std::min( actual_h, max_h );
+		}
+
+		// Auto-sized panels must remain usable when their content is clipped.
+		if ( auto_height && actual_h < content_h )
+		{
+			scrollable = true;
 		}
 
 		const auto abs = layout::item( w, actual_h );
@@ -1827,6 +1835,7 @@ namespace xui {
 			const auto& input = c.input;
 			const auto true_content_h = win->content_h + win->scroll_y + s.window_pad_y;
 			const auto visible_h = win->bounds.h;
+			c.child_height_cache[ win->group_id ] = true_content_h;
 
 			if ( win->scrollable )
 			{
@@ -1964,7 +1973,6 @@ namespace xui {
 			}
 			else
 			{
-				c.child_height_cache[ win->group_id ] = true_content_h;
 				draw::current( ).pop_clip( );
 			}
 		}

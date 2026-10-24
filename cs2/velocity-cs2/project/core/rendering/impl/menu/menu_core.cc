@@ -1311,8 +1311,18 @@ void Menu::Draw() {
 
     const auto menu_reveal = xui::ease::out_cubic(this->m_open_anim_);
 
+    const auto [screen_w, screen_h] = xdraw::viewport_size();
+    const auto max_w = std::max(1.0f, static_cast<float>(screen_w));
+    const auto max_h = std::max(1.0f, static_cast<float>(screen_h));
+    const auto min_w = std::min(700.0f, max_w);
+    const auto min_h = std::min(600.0f, max_h);
+    this->m_w_ = std::clamp(this->m_w_, min_w, max_w);
+    this->m_h_ = std::clamp(this->m_h_, min_h, max_h);
+    this->m_x_ = std::clamp(this->m_x_, 0.0f, max_w - this->m_w_);
+    this->m_y_ = std::clamp(this->m_y_, 0.0f, max_h - this->m_h_);
+
     if (!xui::begin_window("##menu", this->m_x_, this->m_y_, this->m_w_,
-                           this->m_h_, false, 200.0f, 200.0f, menu_reveal)) {
+                           this->m_h_, true, min_w, min_h, menu_reveal)) {
       return;
     }
 

@@ -104,8 +104,8 @@ class Menu {
 
   float m_x_{100.0f};
   float m_y_{100.0f};
-  float m_w_{700.0f};
-  float m_h_{450.0f};
+  float m_w_{900.0f};
+  float m_h_{700.0f};
   float m_body_x_{};
   float m_body_y_{};
   float m_body_w_{};
