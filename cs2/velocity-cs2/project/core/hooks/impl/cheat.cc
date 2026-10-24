@@ -527,7 +527,6 @@ void __fastcall Cheat::CreateMove(std::uintptr_t thisptr, int slot,
 
       diag::SetExceptionPhase("create_move: combat misc");
       features::combat::g_misc.Antiaim().OnCreateMove(current_cmd);
-      features::combat::g_misc.Autostop().OnCreateMove(current_cmd);
     }
     if (trace) {
       diag::Step("create_move: shared and combat misc ready");
@@ -550,6 +549,7 @@ void __fastcall Cheat::CreateMove(std::uintptr_t thisptr, int slot,
       {
         diag::SetExceptionPhase("create_move: rage");
         features::combat::g_rage.OnCreateMove(current_cmd);
+        features::combat::g_misc.Autostop().OnCreateMove(current_cmd);
         if (trace) {
           diag::Step("create_move: rage end");
           diag::Step("create_move: legit begin");

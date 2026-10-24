@@ -24,13 +24,13 @@ void Rage::OnCreateMove(systems::Input::Usercmd* cmd) {
   const auto local = systems::g_local.Get();
   this->UpdatePenetrationCrosshair(local);
 
+  this->m_should_stop_ = false;
+  this->m_firing_this_tick_ = false;
+
   if (!ctx.valid) {
     this->m_revolver_cock_ticks_ = 0;
     return;
   }
-
-  this->m_should_stop_ = false;
-  this->m_firing_this_tick_ = false;
 
   if (!settings::g_combat.m_duckpeek.enabled.value) {
     this->m_release_duck_for_shot_ = false;
@@ -87,11 +87,13 @@ void Rage::OnCreateMove(systems::Input::Usercmd* cmd) {
   } else {
     this->m_revolver_cock_ticks_ = 0;
 
-    if (!g_shared.CanShoot(cmd, local.controller)) {
+    if (!g_shared.CanShoot(cmd, local.controller, false)) {
       return;
     }
 
-    this->RunGun(cmd, aim_ctx, local);
+    // Keep planning the stop while the weapon recovers between shots.
+    this->RunGun(cmd, aim_ctx, local,
+                 g_shared.CanShoot(cmd, local.controller));
   }
 }
 
@@ -193,22 +195,8 @@ bool Rage::ProcessDoubletap(systems::Input::Usercmd* cmd,
     return false;
   }
 
-  const auto client_tick = base_cmd->ClientTick();
-  const auto next_primary = memory::Read<int>(
-      shared_ctx.weapon +
-      SCHEMA("C_BasePlayerWeapon", "m_nNextPrimaryAttackTick"_hash));
-  const auto tick_base = memory::Read<int>(
-      local.controller + SCHEMA("CBasePlayerController", "m_nTickBase"_hash));
-
-  const auto can_attack =
-      client_tick >= next_primary &&
-      tick_base >= g_shared.LastShootTick() + 2 &&
-      !memory::Read<bool>(shared_ctx.weapon +
-                          SCHEMA("C_CSWeaponBase", "m_bInReload"_hash)) &&
-      memory::Read<int>(shared_ctx.weapon +
-                        SCHEMA("C_BasePlayerWeapon", "m_iClip1"_hash)) > 0;
-
-  const auto should_attack = can_attack && charge_dt;
+  const auto should_attack =
+      charge_dt && g_shared.CanShoot(cmd, local.controller);
 
   if (should_attack) {
     if (const auto subtick_moves = base_cmd->MutableSubtickMoves()) {
@@ -828,7 +816,7 @@ void Rage::AutoRevolver(systems::Input::Usercmd* cmd, const AimContext& ctx,
   }
 
   // Keep target and hitchance planning active throughout the cock cycle.
-  // Autostop consumes this command's decision on the following command.
+  // Autostop consumes this decision later in the same command.
   this->RunGun(cmd, ctx, local, false);
 
   cmd->buttons.value |= cstypes::command_buttons::kInAttack;

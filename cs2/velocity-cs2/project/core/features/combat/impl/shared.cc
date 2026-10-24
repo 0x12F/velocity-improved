@@ -1405,7 +1405,7 @@ float Shared::GetAirInaccuracy(float vertical_speed, float jump_initial,
   return std::clamp(val, 0.0f, jump_initial * 2.0f);
 }
 
-bool Shared::CanShoot(systems::Input::Usercmd* cmd,
+bool Shared::CanShoot(systems::Input::Usercmd*,
                       std::uintptr_t local_controller,
                       bool check_next_attack) const {
   if (this->m_ctx_.weapon_type != cstypes::weapon_type::kNife) {
@@ -1426,8 +1426,7 @@ bool Shared::CanShoot(systems::Input::Usercmd* cmd,
 
   const auto tick_base = memory::Read<int>(
       local_controller + SCHEMA("CBasePlayerController", "m_nTickBase"_hash));
-  const auto base_cmd = cmd->csgo_user_cmd.Base();
-  const auto client_tick = base_cmd ? base_cmd->ClientTick() : tick_base;
+  // Weapon attack ticks use the player's simulation clock.
   const auto next_primary = memory::Read<int>(
       this->m_ctx_.weapon +
       SCHEMA("C_BasePlayerWeapon", "m_nNextPrimaryAttackTick"_hash));
@@ -1437,11 +1436,11 @@ bool Shared::CanShoot(systems::Input::Usercmd* cmd,
         this->m_ctx_.weapon +
         SCHEMA("C_BasePlayerWeapon", "m_nNextSecondaryAttackTick"_hash));
     return tick_base >= this->m_last_shoot_tick_ + 2 &&
-           (client_tick >= next_primary || client_tick >= next_secondary);
+           (tick_base >= next_primary || tick_base >= next_secondary);
   }
 
   return tick_base >= this->m_last_shoot_tick_ + 2 &&
-         client_tick >= next_primary;
+         tick_base >= next_primary;
 }
 
 bool Shared::IsMaxAccuracy(float inaccuracy) const {
