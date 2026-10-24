@@ -1,16 +1,20 @@
-#include "pch/pch.h"
+module;
 
-#include <cctype>
-#include <cstring>
+#include "platform/platform.h"
 
-#include "core/features/world/world.h"
-#include "core/settings.h"
-#include "core/systems/systems.h"
-#include "protection/game_addresses.h"
-#include "utilities/addresses/addresses.h"
-#include "utilities/diag.h"
-#include "utilities/logging/logging.h"
-#include "utilities/memory/memory.h"
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+
+#include "protection/address_macros.h"
+
+module velocity;
+
+import <cctype>;
+import <cstddef>;
+import <cstring>;
+import <filesystem>;
+import <string_view>;
+import <type_traits>;
 
 namespace features::world {
 

@@ -1,5 +1,5 @@
 Checks: '-*,readability-identifier-naming'
-HeaderFilterRegex: '.*[\\/]project[\\/](core|pch|protection|utilities)[\\/].*'
+HeaderFilterRegex: '.*[\\/]project[\\/](core|platform|protection|utilities)[\\/].*'
 CheckOptions:
   readability-identifier-naming.NamespaceCase: lower_case
   readability-identifier-naming.ClassCase: CamelCase

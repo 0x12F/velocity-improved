@@ -1,21 +1,22 @@
-#include "pch/pch.h"
+module;
 
-#include <cstdio>
+#include "platform/platform.h"
 
-#include "core/features/changer/runtime.h"
-#include "core/features/features.h"
-#include "core/hooks/hooks.h"
-#include "core/rendering/rendering.h"
-#include "core/settings.h"
-#include "core/systems/systems.h"
-#include "utilities/addresses/addresses.h"
-#include "utilities/diag.h"
-#include "utilities/discord_webhook.h"
-#include "utilities/logging/logging.h"
-#include "utilities/memory/memory.h"
-#include "utilities/security/security.h"
-#include "utilities/steam/steam.h"
-#include "utilities/threadpool/threadpool.h"
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+#include <external/stackwalker/stackwalker.hpp>
+#include <external/xdraw/xdraw.hpp>
+
+module velocity;
+
+import <cstddef>;
+import <cstdio>;
+import <filesystem>;
+import <initializer_list>;
+import <limits>;
+import <string_view>;
+import <thread>;
+import <type_traits>;
 
 namespace {
 

@@ -1,19 +1,25 @@
-#include "pch/pch.h"
+module;
 
-#include "core/features/changer/runtime.h"
-#include "core/features/features.h"
-#include "core/features/misc/server_ping_report.h"
-#include "core/features/misc/server_regions.h"
-#include "core/hooks/hooks.h"
-#include "core/rendering/rendering.h"
-#include "core/systems/systems.h"
-#include "protection/game_addresses.h"
-#include "utilities/addresses/addresses.h"
-#include "utilities/diag.h"
-#include "utilities/hooking/hooking.h"
-#include "utilities/logging/logging.h"
-#include "utilities/memory/memory.h"
-#include "utilities/security/security.h"
+#include "platform/platform.h"
+
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+#include <external/stackwalker/stackwalker.hpp>
+#include <external/xdraw/xdraw.hpp>
+
+#include "core/systems/schema_macros.h"
+#include "protection/address_macros.h"
+
+module velocity;
+
+import <cstddef>;
+import <filesystem>;
+import <initializer_list>;
+import <limits>;
+import <string_view>;
+import <thread>;
+import <type_traits>;
+import <utility>;
 
 namespace hooks {
 

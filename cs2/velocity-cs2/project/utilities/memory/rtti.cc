@@ -1,6 +1,12 @@
-#include "pch/pch.h"
+module;
 
-#include "utilities/memory/memory.h"
+#include "platform/platform.h"
+
+module velocity;
+
+import <cstddef>;
+import <string_view>;
+import <type_traits>;
 
 namespace memory {
 // MSVC x64 RTTI uses image-relative addresses in these descriptors.

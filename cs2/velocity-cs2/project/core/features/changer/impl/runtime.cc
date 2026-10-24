@@ -1,16 +1,22 @@
-#include "pch/pch.h"
+module;
 
-#include "core/features/changer/runtime.h"
+#include "platform/platform.h"
 
-#include <atomic>
-#include <mutex>
-#include <optional>
-#include <utility>
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+#include <external/xdraw/xdraw.hpp>
 
-#include "core/features/changer/engine.h"
-#include "core/features/changer/glove_changer.h"
-#include "core/features/changer/skinchanger.h"
-#include "core/features/features.h"
+module velocity;
+
+import <atomic>;
+import <cstddef>;
+import <filesystem>;
+import <limits>;
+import <mutex>;
+import <optional>;
+import <string_view>;
+import <type_traits>;
+import <utility>;
 
 namespace features::changer::runtime {
 std::vector<StickerKit> LoadStickerCatalog();

@@ -1,14 +1,18 @@
-#include "pch/pch.h"
+module;
 
-#include "core/hooks/hooks.h"
-#include "core/resources/particles/effects.h"
-#include "core/resources/particles/weather.h"
-#include "core/settings.h"
-#include "protection/game_addresses.h"
-#include "utilities/addresses/addresses.h"
-#include "utilities/hooking/hooking.h"
-#include "utilities/logging/logging.h"
-#include "utilities/memory/memory.h"
+#include "platform/platform.h"
+
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+
+#include "protection/address_macros.h"
+
+module velocity;
+
+import <cstddef>;
+import <initializer_list>;
+import <string_view>;
+import <type_traits>;
 
 namespace {
 

@@ -19,7 +19,7 @@ namespace xui {
 	{
 		float x{}, y{}, w{}, h{};
 
-		inline constexpr bool rect::contains( float px, float py ) const noexcept
+		inline constexpr bool contains( float px, float py ) const noexcept
 		{
 			return px >= x && px <= x + w && py >= y && py <= y + h;
 		} 

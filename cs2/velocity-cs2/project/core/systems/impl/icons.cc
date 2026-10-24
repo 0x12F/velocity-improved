@@ -1,7 +1,16 @@
-#include "pch/pch.h"
+module;
 
-#include "core/systems/systems.h"
-#include "utilities/game_path.h"
+#include "platform/platform.h"
+
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+
+module velocity;
+
+import <cstddef>;
+import <filesystem>;
+import <string_view>;
+import <system_error>;
 
 namespace systems {
 

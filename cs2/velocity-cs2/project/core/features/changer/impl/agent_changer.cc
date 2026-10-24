@@ -1,9 +1,20 @@
-#include "pch/pch.h"
+module;
 
-#include "core/features/changer/agent_changer.h"
+#include "platform/platform.h"
 
-#include "core/features/changer/engine.h"
-#include "core/features/features.h"
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+#include <external/xdraw/xdraw.hpp>
+
+#include "protection/address_macros.h"
+
+module velocity;
+
+import <cstddef>;
+import <filesystem>;
+import <limits>;
+import <string_view>;
+import <type_traits>;
 
 namespace features::changer {
 namespace {

@@ -1,8 +1,15 @@
-#include "pch/pch.h"
+module;
 
-#include "protection/game_addresses.h"
-#include "utilities/logging/logging.h"
-#include "utilities/memory/memory.h"
+#include "platform/platform.h"
+
+
+#include "protection/address_macros.h"
+
+module velocity;
+
+import <cstddef>;
+import <string_view>;
+import <type_traits>;
 
 namespace logging::popup {
 

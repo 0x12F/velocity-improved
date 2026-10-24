@@ -1,25 +1,31 @@
-#include "pch/pch.h"
+module;
 
-#include "core/systems/preview/model_preview_panorama.h"
+#include "platform/platform.h"
 
 #include <Windows.h>
 #include <d3d11.h>
 
-#include <algorithm>
-#include <atomic>
-#include <cmath>
-#include <cstdint>
-#include <cstdio>
-#include <cstring>
-#include <mutex>
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+#include <external/xdraw/xdraw.hpp>
 
-#include "core/features/changer/engine.h"
-#include "core/features/changer/skinchanger.h"
-#include "core/features/features.h"
-#include "core/systems/preview/layouts.h"
-#include "core/systems/preview/model_preview_item.h"
-#include "protection/game_addresses.h"
-#include "utilities/hooking/hooking.h"
+#include "protection/address_macros.h"
+
+module velocity;
+
+import <algorithm>;
+import <atomic>;
+import <cmath>;
+import <cstddef>;
+import <cstdint>;
+import <cstdio>;
+import <cstring>;
+import <filesystem>;
+import <initializer_list>;
+import <limits>;
+import <mutex>;
+import <string_view>;
+import <type_traits>;
 
 namespace {
 bool InstallHook(hooking::Jmp& hook, void* target, void* detour) {

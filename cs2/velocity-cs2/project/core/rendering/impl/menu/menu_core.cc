@@ -1,14 +1,19 @@
-#include "pch/pch.h"
+module;
+
+#include "platform/platform.h"
 
 #include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+#include <external/stackwalker/stackwalker.hpp>
+#include <external/xdraw/xdraw.hpp>
 
-#include "core/rendering/rendering.h"
-#include "core/settings.h"
-#include "core/systems/systems.h"
-#include "utilities/addresses/addresses.h"
-#include "utilities/memory/memory.h"
-#include "utilities/security/security.h"
-#include "utilities/steam/steam.h"
+module velocity;
+
+import <cstddef>;
+import <filesystem>;
+import <string_view>;
+import <thread>;
+import <type_traits>;
 
 namespace rendering {
 

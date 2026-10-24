@@ -1,7 +1,11 @@
-#include "pch/pch.h"
+module;
 
-#include "utilities/addresses/addresses.h"
-#include "utilities/logging/logging.h"
+#include "platform/platform.h"
+
+module velocity;
+
+import <string_view>;
+import <type_traits>;
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")

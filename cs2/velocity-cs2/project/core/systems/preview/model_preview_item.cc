@@ -1,26 +1,31 @@
-#include "pch/pch.h"
+module;
 
-#include "core/systems/preview/model_preview_item.h"
+#include "platform/platform.h"
 
 #include <Windows.h>
 
-#include <algorithm>
-#include <array>
-#include <atomic>
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
-#include <mutex>
-#include <string>
-#include <utility>
-#include <vector>
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+#include <external/xdraw/xdraw.hpp>
 
-#include "core/features/changer/econ_item_attribute_manager.h"
-#include "core/features/changer/engine.h"
-#include "core/features/changer/skinchanger.h"
-#include "core/features/changer/sticker_placement.h"
-#include "core/features/features.h"
-#include "protection/game_addresses.h"
+#include "protection/address_macros.h"
+
+module velocity;
+
+import <algorithm>;
+import <array>;
+import <atomic>;
+import <cstddef>;
+import <cstdint>;
+import <cstring>;
+import <filesystem>;
+import <limits>;
+import <mutex>;
+import <string>;
+import <string_view>;
+import <type_traits>;
+import <utility>;
+import <vector>;
 
 namespace {
 constexpr ULONGLONG kRetryIntervalMs = 500;

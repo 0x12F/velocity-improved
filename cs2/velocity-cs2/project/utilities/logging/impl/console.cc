@@ -1,7 +1,11 @@
-#include "pch/pch.h"
+module;
 
-#include "utilities/diag.h"
-#include "utilities/logging/logging.h"
+#include "platform/platform.h"
+
+module velocity;
+
+import <cstddef>;
+import <string_view>;
 
 namespace logging::console {
 

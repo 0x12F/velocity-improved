@@ -1,8 +1,12 @@
-#include "pch/pch.h"
+module;
 
-#include "core/rendering/rendering.h"
-#include "core/resources/fonts/inter.h"
-#include "core/resources/fonts/pixel7.h"
+#include "platform/platform.h"
+
+#include <external/xdraw/xdraw.hpp>
+
+module velocity;
+
+import <cstddef>;
 
 namespace rendering {
 

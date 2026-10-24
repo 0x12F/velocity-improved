@@ -1,8 +1,12 @@
-#include "pch/pch.h"
+module;
 
-#include "utilities/memory/memory.h"
+#include "platform/platform.h"
 
-#include "utilities/logging/logging.h"
+module velocity;
+
+import <cstddef>;
+import <string_view>;
+import <type_traits>;
 
 namespace memory {
 

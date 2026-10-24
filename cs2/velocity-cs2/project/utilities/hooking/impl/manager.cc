@@ -1,8 +1,17 @@
-#include "pch/pch.h"
+module;
 
-#include "utilities/hooking/hooking.h"
-#include "utilities/logging/logging.h"
-#include "utilities/security/security.h"
+#include "platform/platform.h"
+
+#include <external/nlohmann/json.hpp>
+#include <external/stackwalker/stackwalker.hpp>
+
+module velocity;
+
+import <cstddef>;
+import <initializer_list>;
+import <string_view>;
+import <thread>;
+import <type_traits>;
 
 namespace hooking::manager {
 

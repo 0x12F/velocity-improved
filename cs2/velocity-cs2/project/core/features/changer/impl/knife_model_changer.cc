@@ -1,12 +1,21 @@
-#include "pch/pch.h"
+module;
 
-#include "core/features/changer/knife_model_changer.h"
+#include "platform/platform.h"
 
-#include <cstdint>
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+#include <external/xdraw/xdraw.hpp>
 
-#include "core/features/changer/engine.h"
-#include "core/features/features.h"
-#include "protection/game_addresses.h"
+#include "protection/address_macros.h"
+
+module velocity;
+
+import <cstddef>;
+import <cstdint>;
+import <filesystem>;
+import <limits>;
+import <string_view>;
+import <type_traits>;
 
 namespace features::changer {
 namespace {

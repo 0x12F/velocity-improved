@@ -1,6 +1,14 @@
-#include "pch/pch.h"
+module;
 
-#include "utilities/security/security.h"
+#include "platform/platform.h"
+
+#include <external/nlohmann/json.hpp>
+#include <external/stackwalker/stackwalker.hpp>
+
+module velocity;
+
+import <cstddef>;
+import <thread>;
 
 namespace security::integrity {
 

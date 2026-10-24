@@ -1,10 +1,18 @@
-#include "pch/pch.h"
+module;
 
-#include <cctype>
-#include <charconv>
+#include "platform/platform.h"
 
-#include "core/features/changer/runtime.h"
-#include "utilities/memory/memory.h"
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+
+module velocity;
+
+import <cctype>;
+import <charconv>;
+import <cstddef>;
+import <filesystem>;
+import <string_view>;
+import <type_traits>;
 
 namespace features::changer::runtime {
 namespace {

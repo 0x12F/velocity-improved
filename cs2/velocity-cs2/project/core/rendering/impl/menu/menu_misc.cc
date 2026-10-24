@@ -1,10 +1,19 @@
-#include "pch/pch.h"
+module;
 
-#include "core/features/features.h"
-#include "core/features/misc/server_regions.h"
-#include "core/hooks/hooks.h"
-#include "core/rendering/rendering.h"
-#include "core/settings.h"
+#include "platform/platform.h"
+
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+#include <external/xdraw/xdraw.hpp>
+
+module velocity;
+
+import <cstddef>;
+import <filesystem>;
+import <initializer_list>;
+import <limits>;
+import <string_view>;
+import <type_traits>;
 
 namespace rendering {
 

@@ -1,97 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Development|x64">
-      <Configuration>Development</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Ship|x64">
-      <Configuration>Ship</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
+    <ProjectConfiguration Include="Development|x64"><Configuration>Development</Configuration><Platform>x64</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="Ship|x64"><Configuration>Ship</Configuration><Platform>x64</Platform></ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{d30ae6e8-620d-42e0-b3f4-804cafe20f44}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
     <RootNamespace>velocitycs2</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'" Label="Configuration">
+  <PropertyGroup Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <EnableUnitySupport>true</EnableUnitySupport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Ship|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <EnableUnitySupport>true</EnableUnitySupport>
+    <EnableUnitySupport>false</EnableUnitySupport>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="Shared">
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
+  <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Ship|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
-    <OutDir>../bin/</OutDir>
-    <IntDir>../bin/intermediates/</IntDir>
-    <IncludePath>project/external/phnt;project/;$(IncludePath)</IncludePath>
-    <TargetName>velocity-cs2-dev</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Ship|x64'">
-    <OutDir>../bin/</OutDir>
-    <IntDir>../bin/intermediates/</IntDir>
-    <IncludePath>project/external/phnt;project/;$(IncludePath)</IncludePath>
-    <TargetName>cs2</TargetName>
+  <PropertyGroup>
+    <OutDir>$(ProjectDir)..\bin\</OutDir>
+    <IntDir>$(ProjectDir)..\bin\intermediates\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)'=='Development'">velocity-cs2-dev</TargetName>
+    <TargetName Condition="'$(Configuration)'=='Ship'">cs2</TargetName>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnabled>true</VcpkgEnabled>
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgTriplet>x64-windows-static</VcpkgTriplet>
+    <VcpkgConfiguration>Release</VcpkgConfiguration>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
     <VcpkgRoot Condition="'$(VcpkgRoot)'=='' and Exists('$(VCInstallDir)vcpkg\vcpkg.exe')">$(VCInstallDir)vcpkg\</VcpkgRoot>
     <VelocityImportVcpkg Condition="'$(VcpkgPropsImported)'!='true' and Exists('$(VcpkgRoot)scripts\buildsystems\msbuild\vcpkg.props')">true</VelocityImportVcpkg>
   </PropertyGroup>
   <Import Project="$(VcpkgRoot)scripts\buildsystems\msbuild\vcpkg.props" Condition="'$(VelocityImportVcpkg)'=='true'" />
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
-    <VcpkgUseStatic>true</VcpkgUseStatic>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Ship|x64'" Label="Vcpkg">
-    <VcpkgUseStatic>true</VcpkgUseStatic>
-  </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
+  <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level1</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>false</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>VELOCITYCS2_EXPORTS;_WINDOWS;_USRDLL;DEV;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch/pch.h</PrecompiledHeaderFile>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OmitFramePointers>false</OmitFramePointers>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <ConformanceMode>true</ConformanceMode>
+      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
+      <TranslateIncludes>true</TranslateIncludes>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <IncludeInUnityFile>false</IncludeInUnityFile>
       <ExceptionHandling>Sync</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
-      <LanguageStandard_C>stdclatest</LanguageStandard_C>
-      <Optimization>Disabled</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>$(ProjectDir)project;$(ProjectDir)project\external\phnt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>VELOCITYCS2_EXPORTS;_WINDOWS;_USRDLL;NOMINMAX;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -100,293 +63,29 @@
       <EnableUAC>false</EnableUAC>
       <EntryPointSymbol>Entry</EntryPointSymbol>
       <AdditionalDependencies>freetype.lib;Synchronization.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>
-      </ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Ship|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Development'">
     <ClCompile>
-      <WarningLevel>Level1</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;VELOCITYCS2_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch/pch.h</PrecompiledHeaderFile>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OmitFramePointers>true</OmitFramePointers>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <IncludeInUnityFile>false</IncludeInUnityFile>
-      <ExceptionHandling>false</ExceptionHandling>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
-      <LanguageStandard_C>stdclatest</LanguageStandard_C>
+      <PreprocessorDefinitions>DEV;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>Disabled</Optimization>
+      <OmitFramePointers>false</OmitFramePointers>
     </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableUAC>false</EnableUAC>
-      <EntryPointSymbol>Entry</EntryPointSymbol>
-      <AdditionalDependencies>freetype.lib;Synchronization.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Ship'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link><OptimizeReferences>true</OptimizeReferences><EnableCOMDATFolding>true</EnableCOMDATFolding></Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="project\core\features\changer\impl\econ_item_system.cc" />
-    <ClCompile Include="project\core\features\combat\impl\extrapolation.cc" />
-    <ClCompile Include="project\core\features\combat\impl\legit.cc" />
-    <ClCompile Include="project\core\features\combat\impl\misc.cc" />
-    <ClCompile Include="project\core\features\combat\impl\rage.cc" />
-    <ClCompile Include="project\core\features\combat\impl\shared.cc" />
-    <ClCompile Include="project\core\features\esp\item\item_chams.cc" />
-    <ClCompile Include="project\core\features\esp\item\item_glow.cc" />
-    <ClCompile Include="project\core\features\esp\item\item_overlay.cc" />
-    <ClCompile Include="project\core\features\esp\other\other_overlay.cc" />
-    <ClCompile Include="project\core\features\esp\player\player_chams.cc" />
-    <ClCompile Include="project\core\features\esp\player\player_glow.cc" />
-    <ClCompile Include="project\core\features\esp\player\player_overlay.cc" />
-    <ClCompile Include="project\core\features\esp\projectile\projectile_tracers.cc" />
-    <ClCompile Include="project\core\features\esp\projectile\projectile_overlay.cc" />
-    <ClCompile Include="project\core\features\misc\impl\camera.cc" />
-    <ClCompile Include="project\core\features\misc\impl\dlight.cc" />
-    <ClCompile Include="project\core\features\misc\impl\hud.cc" />
-    <ClCompile Include="project\core\features\misc\impl\impacts.cc" />
-    <ClCompile Include="project\core\features\misc\impl\other.cc" />
-    <ClCompile Include="project\core\features\misc\impl\projectile_trajectory.cc" />
-    <ClCompile Include="project\core\features\misc\impl\removals.cc" />
-    <ClCompile Include="project\core\features\misc\impl\scoreboard_weapons.cc" />
-    <ClCompile Include="project\core\features\movement\impl\airstrafe.cc" />
-    <ClCompile Include="project\core\features\movement\impl\test_strafer.cc" />
-    <ClCompile Include="project\core\features\movement\impl\bunnyhop.cc" />
-    <ClCompile Include="project\core\features\movement\impl\edgebug.cc" />
-    <ClCompile Include="project\core\features\movement\impl\edgejump.cc" />
-    <ClCompile Include="project\core\features\movement\impl\edgestop.cc" />
-    <ClCompile Include="project\core\features\movement\impl\fastladder.cc" />
-    <ClCompile Include="project\core\features\movement\impl\jumpbug.cc" />
-    <ClCompile Include="project\core\features\movement\impl\slowwalk.cc" />
-    <ClCompile Include="project\core\features\world\impl\scene.cc" />
-    <ClCompile Include="project\core\features\world\impl\smoke.cc" />
-    <ClCompile Include="project\core\features\world\impl\weather.cc" />
-    <ClCompile Include="project\core\hooks\impl\cheat.cc" />
-    <ClCompile Include="project\core\hooks\impl\utility.cc" />
-    <ClCompile Include="project\core\rendering\impl\context.cc" />
-    <ClCompile Include="project\core\rendering\impl\fonts.cc" />
-    <ClCompile Include="project\core\rendering\impl\menu\menu_config.cc" />
-    <ClCompile Include="project\core\rendering\impl\menu\menu_core.cc" />
-    <ClCompile Include="project\core\rendering\impl\menu\menu_legitbot.cc" />
-    <ClCompile Include="project\core\rendering\impl\menu\menu_misc.cc" />
-    <ClCompile Include="project\core\rendering\impl\menu\menu_player.cc" />
-    <ClCompile Include="project\core\rendering\impl\menu\menu_ragebot.cc" />
-    <ClCompile Include="project\core\rendering\impl\menu\menu_skins.cc" />
-    <ClCompile Include="project\core\rendering\impl\menu\menu_skins_editor.cc" />
-    <ClCompile Include="project\core\rendering\impl\menu\menu_world.cc" />
-    <ClCompile Include="project\core\rendering\impl\widgets.cc" />
-    <ClCompile Include="project\core\systems\impl\bones.cc" />
-    <ClCompile Include="project\core\systems\impl\bounds.cc" />
-    <ClCompile Include="project\core\systems\impl\entities.cc" />
-    <ClCompile Include="project\core\systems\impl\events.cc" />
-    <ClCompile Include="project\core\systems\impl\frame_data.cc" />
-    <ClCompile Include="project\core\systems\impl\hitboxes.cc" />
-    <ClCompile Include="project\core\systems\impl\icons.cc" />
-    <ClCompile Include="project\core\systems\impl\input.cc" />
-    <ClCompile Include="project\core\systems\impl\legit_input.cc" />
-    <ClCompile Include="project\core\systems\impl\local.cc" />
-    <ClCompile Include="project\core\systems\impl\materials.cc" />
-    <ClCompile Include="project\core\systems\impl\prediction.cc" />
-    <ClCompile Include="project\core\systems\impl\schemas.cc" />
-    <ClCompile Include="project\core\systems\impl\tracing.cc" />
-    <ClCompile Include="project\core\systems\impl\view.cc" />
-    <ClCompile Include="project\entry.cc" />
-    <ClCompile Include="project\external\lz4\lz4.c">
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Development|x64'">false</IncludeInUnityFile>
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Ship|x64'">false</IncludeInUnityFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Development|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Ship|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="project\external\stackwalker\stackwalker.cpp" />
-    <ClCompile Include="project\external\xdraw\xdraw.cpp" />
-    <ClCompile Include="project\external\xdraw\xui\xui.cpp" />
-    <ClCompile Include="project\external\zydis\zydis.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Development|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Ship|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="project\pch\pch.cc">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Development|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Ship|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="project\protection\patterns.cc" />
-    <ClCompile Include="project\utilities\addresses\impl\functions.cc" />
-    <ClCompile Include="project\utilities\addresses\impl\globals.cc" />
-    <ClCompile Include="project\utilities\addresses\impl\interfaces\engine_cvar.cc" />
-    <ClCompile Include="project\utilities\addresses\impl\modules.cc" />
-    <ClCompile Include="project\utilities\discord_webhook.cc" />
-    <ClCompile Include="project\utilities\hooking\impl\allocator.cc" />
-    <ClCompile Include="project\utilities\hooking\impl\jmp.cc" />
-    <ClCompile Include="project\utilities\hooking\impl\manager.cc" />
-    <ClCompile Include="project\utilities\logging\impl\console.cc" />
-    <ClCompile Include="project\utilities\logging\impl\popup.cc" />
-    <ClCompile Include="project\utilities\math\math.cc" />
-    <ClCompile Include="project\utilities\memory\memory.cc" />
-    <ClCompile Include="project\utilities\overrides.cc" />
-    <ClCompile Include="project\utilities\proto\proto.cc" />
-    <ClCompile Include="project\utilities\random\random.cc" />
-    <ClCompile Include="project\utilities\security\impl\integrity.cc" />
-    <ClCompile Include="project\utilities\security\impl\prologues.cc" />
-    <ClCompile Include="project\utilities\security\impl\regions.cc" />
-    <ClCompile Include="project\utilities\steam\impl\friends.cc" />
-    <ClCompile Include="project\utilities\steam\impl\http.cc" />
-    <ClCompile Include="project\utilities\steam\impl\user.cc" />
-    <ClCompile Include="project\utilities\steam\impl\utils.cc" />
-    <ClCompile Include="project\utilities\threadpool\threadpool.cc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="project\core\features\changer\changer.h" />
-    <ClInclude Include="project\core\features\combat\combat.h" />
-    <ClInclude Include="project\core\features\esp\esp.h" />
-    <ClInclude Include="project\core\features\features.h" />
-    <ClInclude Include="project\core\features\misc\misc.h" />
-    <ClInclude Include="project\core\features\movement\movement.h" />
-    <ClInclude Include="project\core\features\world\world.h" />
-    <ClInclude Include="project\core\hooks\hooks.h" />
-    <ClInclude Include="project\core\rendering\rendering.h" />
-    <ClInclude Include="project\core\resources\fonts\inter.h" />
-    <ClInclude Include="project\core\resources\fonts\pixel7.h" />
-    <ClInclude Include="project\core\resources\particles\effects.h" />
-    <ClInclude Include="project\core\resources\particles\weather.h" />
-    <ClInclude Include="project\core\settings.h" />
-    <ClInclude Include="project\core\systems\systems.h" />
-    <ClInclude Include="project\external\bc7.hpp" />
-    <ClInclude Include="project\external\config.hpp" />
-    <ClInclude Include="project\external\inline-syscall\inline_syscall.hpp" />
-    <ClInclude Include="project\external\lz4\lz4.h" />
-    <ClInclude Include="project\external\nlohmann\json.hpp" />
-    <ClInclude Include="project\external\phnt\ntafd.h" />
-    <ClInclude Include="project\external\phnt\ntbcd.h" />
-    <ClInclude Include="project\external\phnt\ntd3dkmt.h" />
-    <ClInclude Include="project\external\phnt\ntdbg.h" />
-    <ClInclude Include="project\external\phnt\ntexapi.h" />
-    <ClInclude Include="project\external\phnt\ntgdi.h" />
-    <ClInclude Include="project\external\phnt\ntimage.h" />
-    <ClInclude Include="project\external\phnt\ntintsafe.h" />
-    <ClInclude Include="project\external\phnt\ntioapi.h" />
-    <ClInclude Include="project\external\phnt\ntkeapi.h" />
-    <ClInclude Include="project\external\phnt\ntldr.h" />
-    <ClInclude Include="project\external\phnt\ntlpcapi.h" />
-    <ClInclude Include="project\external\phnt\ntmisc.h" />
-    <ClInclude Include="project\external\phnt\ntmmapi.h" />
-    <ClInclude Include="project\external\phnt\ntnls.h" />
-    <ClInclude Include="project\external\phnt\ntobapi.h" />
-    <ClInclude Include="project\external\phnt\ntpebteb.h" />
-    <ClInclude Include="project\external\phnt\ntpfapi.h" />
-    <ClInclude Include="project\external\phnt\ntpnpapi.h" />
-    <ClInclude Include="project\external\phnt\ntpoapi.h" />
-    <ClInclude Include="project\external\phnt\ntpsapi.h" />
-    <ClInclude Include="project\external\phnt\ntregapi.h" />
-    <ClInclude Include="project\external\phnt\ntrtl.h" />
-    <ClInclude Include="project\external\phnt\ntsam.h" />
-    <ClInclude Include="project\external\phnt\ntseapi.h" />
-    <ClInclude Include="project\external\phnt\ntsmss.h" />
-    <ClInclude Include="project\external\phnt\ntstrsafe.h" />
-    <ClInclude Include="project\external\phnt\ntsxs.h" />
-    <ClInclude Include="project\external\phnt\nttmapi.h" />
-    <ClInclude Include="project\external\phnt\nttp.h" />
-    <ClInclude Include="project\external\phnt\nttypesafe.h" />
-    <ClInclude Include="project\external\phnt\ntuser.h" />
-    <ClInclude Include="project\external\phnt\ntwmi.h" />
-    <ClInclude Include="project\external\phnt\ntwow64.h" />
-    <ClInclude Include="project\external\phnt\ntxcapi.h" />
-    <ClInclude Include="project\external\phnt\ntzwapi.h" />
-    <ClInclude Include="project\external\phnt\phnt.h" />
-    <ClInclude Include="project\external\phnt\phnt_ntdef.h" />
-    <ClInclude Include="project\external\phnt\phnt_windows.h" />
-    <ClInclude Include="project\external\phnt\smbios.h" />
-    <ClInclude Include="project\external\phnt\subprocesstag.h" />
-    <ClInclude Include="project\external\phnt\usermgr.h" />
-    <ClInclude Include="project\external\phnt\winsta.h" />
-    <ClInclude Include="project\external\poly2d.hpp" />
-    <ClInclude Include="project\external\stackwalker\stackwalker.hpp" />
-    <ClInclude Include="project\external\xdraw\dependencies\fonts.hpp" />
-    <ClInclude Include="project\external\xdraw\dependencies\freetype\include.hpp" />
-    <ClInclude Include="project\external\xdraw\dependencies\nanosvg\include.hpp" />
-    <ClInclude Include="project\external\xdraw\dependencies\nanosvg\x\nanosvg.h" />
-    <ClInclude Include="project\external\xdraw\dependencies\nanosvg\x\nanosvgrast.h" />
-    <ClInclude Include="project\external\xdraw\dependencies\shaders.hpp" />
-    <ClInclude Include="project\external\xdraw\xdraw.hpp" />
-    <ClInclude Include="project\external\xdraw\xui\xui.hpp" />
-    <ClInclude Include="project\external\xorstr.hpp" />
-    <ClInclude Include="project\external\zydis\zydis.h" />
-    <ClInclude Include="project\pch\pch.h" />
-    <ClInclude Include="project\protection\game_addresses.h" />
-    <ClInclude Include="project\protection\patterns.h" />
-    <ClInclude Include="project\utilities\addresses\addresses.h" />
-    <ClInclude Include="project\utilities\addresses\interfaces.h" />
-    <ClInclude Include="project\utilities\animation.h" />
-    <ClInclude Include="project\utilities\cstypes.h" />
-    <ClInclude Include="project\utilities\discord_webhook.h" />
-    <ClInclude Include="project\utilities\fnv1a.h" />
-    <ClInclude Include="project\utilities\game_path.h" />
-    <ClInclude Include="project\utilities\hooking\hooking.h" />
-    <ClInclude Include="project\utilities\logging\logging.h" />
-    <ClInclude Include="project\utilities\math\math.h" />
-    <ClInclude Include="project\utilities\memory\memory.h" />
-    <ClInclude Include="project\utilities\proto\proto.h" />
-    <ClInclude Include="project\utilities\random\random.h" />
-    <ClInclude Include="project\utilities\security\security.h" />
-    <ClInclude Include="project\utilities\steam\steam.h" />
-    <ClInclude Include="project\utilities\threadpool\threadpool.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include=".editorconfig" />
-    <None Include="project\external\inline-syscall\inline_syscall.inl" />
-    <None Include="vcpkg.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="project\core\features\changer\impl\runtime.cc" />
-    <ClCompile Include="project\core\features\changer\impl\configuration.cc" />
-    <ClInclude Include="project\core\features\changer\runtime.h" />
-    <ClInclude Include="project\core\features\changer\cosmetics.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="project\core\features\changer\agent_models.h" />
-    <ClInclude Include="project\core\features\changer\cosmetic_configuration.h" />
-    <ClInclude Include="project\core\features\changer\econ_item_attribute_manager.h" />
-    <ClInclude Include="project\core\features\changer\engine.h" />
-    <ClInclude Include="project\core\features\changer\glove_changer.h" />
-    <ClInclude Include="project\core\features\changer\knife_model_changer.h" />
-    <ClInclude Include="project\core\features\changer\skinchanger.h" />
-    <ClInclude Include="project\core\features\changer\skin_application.h" />
-    <ClInclude Include="project\core\features\changer\sticker_placement.h" />
-    <ClInclude Include="project\core\features\changer\weapon_cosmetics.h" />
-    <ClCompile Include="project\core\features\changer\impl\econ_item_attribute_manager.cc" />
-    <ClCompile Include="project\core\features\changer\impl\glove_changer.cc" />
-    <ClCompile Include="project\core\features\changer\impl\knife_model_changer.cc" />
-    <ClCompile Include="project\core\features\changer\impl\skinchanger.cc" />
-    <ClCompile Include="project\core\features\changer\impl\skin_application.cc" />
-    <ClCompile Include="project\core\features\changer\impl\sticker_catalog.cc" />
-    <ClInclude Include="project\core\features\changer\agent_changer.h" />
-    <ClCompile Include="project\core\features\changer\impl\agent_changer.cc" />
-    <ClCompile Include="project\core\features\changer\impl\weapon_cosmetics.cc">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClInclude Include="project\core\features\misc\server_regions.h" />
-    <ClInclude Include="project\core\features\misc\server_ping_report.h" />
-    <ClInclude Include="project\core\systems\preview\layouts.h" />
-    <ClCompile Include="project\core\systems\preview\model_preview.cc" />
-    <ClInclude Include="project\core\systems\preview\model_preview.h" />
-    <ClCompile Include="project\core\systems\preview\model_preview_item.cc" />
-    <ClInclude Include="project\core\systems\preview\model_preview_item.h" />
-    <ClCompile Include="project\core\systems\preview\model_preview_panorama.cc" />
-    <ClInclude Include="project\core\systems\preview\model_preview_panorama.h" />
-    <ClCompile Include="project\utilities\memory\rtti.cc" />
+    <ClCompile Include="project\**\*.cc;project\**\*.cpp;project\**\*.c" />
+    <ClCompile Include="project\**\*.cppm"><CompileAs>CompileAsCppModule</CompileAs></ClCompile>
+    <ClInclude Include="project\**\*.h;project\**\*.hpp" />
+    <None Include=".editorconfig;vcpkg.json;project\external\inline-syscall\inline_syscall.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(VcpkgRoot)scripts\buildsystems\msbuild\vcpkg.targets" Condition="'$(VelocityImportVcpkg)'=='true'" />
-  <Target Name="EnsureVcpkgAvailable" BeforeTargets="PrepareForBuild" Condition="'$(VcpkgPropsImported)'!='true'">
-    <Error Text="vcpkg was not found. Install the Visual Studio vcpkg component or set VCPKG_ROOT to a vcpkg installation." />
-  </Target>
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
 </Project>

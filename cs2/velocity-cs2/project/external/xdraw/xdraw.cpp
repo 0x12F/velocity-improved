@@ -1,5 +1,5 @@
 #define NOMINMAX
-#include "pch/pch.h"
+#include "platform/platform.h"
 
 #include "xdraw.hpp"
 

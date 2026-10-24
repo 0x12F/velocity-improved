@@ -1,12 +1,18 @@
-#include "pch/pch.h"
+module;
 
-#include "core/features/changer/agent_models.h"
-#include "core/features/changer/changer.h"
-#include "utilities/addresses/addresses.h"
-#include "utilities/game_path.h"
-#include "utilities/logging/logging.h"
-#include "utilities/memory/memory.h"
-#include "utilities/threadpool/threadpool.h"
+#include "platform/platform.h"
+
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+
+module velocity;
+
+import <cctype>;
+import <cstddef>;
+import <filesystem>;
+import <string_view>;
+import <system_error>;
+import <type_traits>;
 
 namespace features::changer {
 namespace {

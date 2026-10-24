@@ -1,17 +1,23 @@
-#include "pch/pch.h"
+module;
+
+#include "platform/platform.h"
 
 #include <ShlObj.h>
 
-#include <filesystem>
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+#include <external/xdraw/xdraw.hpp>
 
-#include "core/features/features.h"
-#include "core/rendering/rendering.h"
-#include "core/settings.h"
-#include "core/systems/systems.h"
-#include "protection/game_addresses.h"
-#include "utilities/addresses/addresses.h"
-#include "utilities/logging/logging.h"
-#include "utilities/memory/memory.h"
+#include "core/systems/schema_macros.h"
+#include "protection/address_macros.h"
+
+module velocity;
+
+import <cstddef>;
+import <filesystem>;
+import <limits>;
+import <string_view>;
+import <type_traits>;
 
 namespace features::misc {
 

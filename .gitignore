@@ -80,6 +80,9 @@ pytest-of-*/
 .analysis/
 *.wer
 vcpkg_installed/
+out/
+*.pcm
+*.ifc
 
 # OS metadata
 .DS_Store

@@ -1,10 +1,19 @@
-#include "pch/pch.h"
+module;
 
-#include <cmath>
+#include "platform/platform.h"
 
-#include "core/systems/systems.h"
-#include "utilities/addresses/addresses.h"
-#include "utilities/memory/memory.h"
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+
+#include "core/systems/schema_macros.h"
+
+module velocity;
+
+import <cmath>;
+import <cstddef>;
+import <filesystem>;
+import <string_view>;
+import <type_traits>;
 
 namespace systems {
 

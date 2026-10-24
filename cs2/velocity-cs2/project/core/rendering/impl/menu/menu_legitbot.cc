@@ -1,7 +1,15 @@
-#include "pch/pch.h"
+module;
 
-#include "core/rendering/rendering.h"
-#include "core/settings.h"
+#include "platform/platform.h"
+
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+#include <external/xdraw/xdraw.hpp>
+
+module velocity;
+
+import <cstddef>;
+import <string_view>;
 
 namespace rendering {
 

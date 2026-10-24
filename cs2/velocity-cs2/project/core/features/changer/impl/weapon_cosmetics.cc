@@ -1,8 +1,12 @@
-#include "core/features/changer/weapon_cosmetics.h"
+module;
 
-#include <algorithm>
-#include <bit>
-#include <cstddef>
+#include "platform/platform.h"
+
+module velocity;
+
+import <algorithm>;
+import <bit>;
+import <cstddef>;
 
 namespace features::changer::weapon_cosmetics {
 namespace {

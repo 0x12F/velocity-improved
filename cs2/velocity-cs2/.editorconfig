@@ -1,6 +1,6 @@
 root = true
 
-[*.{cc,h}]
+[*.{cc,h,cppm}]
 charset = utf-8
 indent_style = space
 indent_size = 2

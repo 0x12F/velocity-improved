@@ -1,18 +1,25 @@
-#include "pch/pch.h"
+module;
 
-#include "core/features/changer/glove_changer.h"
+#include "platform/platform.h"
 
 #include <Windows.h>
 
-#include <algorithm>
-#include <atomic>
-#include <cstdint>
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+#include <external/xdraw/xdraw.hpp>
 
-#include "core/features/changer/econ_item_attribute_manager.h"
-#include "core/features/changer/engine.h"
-#include "core/features/changer/skinchanger.h"
-#include "core/features/features.h"
-#include "protection/game_addresses.h"
+#include "protection/address_macros.h"
+
+module velocity;
+
+import <algorithm>;
+import <atomic>;
+import <cstddef>;
+import <cstdint>;
+import <filesystem>;
+import <limits>;
+import <string_view>;
+import <type_traits>;
 
 namespace features::changer {
 namespace {

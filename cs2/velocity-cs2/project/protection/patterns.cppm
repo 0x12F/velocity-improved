@@ -1,0 +1,177 @@
+module;
+
+#include "platform/platform.h"
+
+export module velocity:protection.patterns;
+
+export import :utilities.addresses.addresses;
+
+export {
+namespace protection::addresses {
+union Address;
+}
+
+namespace patterns {
+
+extern const ::protection::addresses::Address& add_entity;
+extern const ::protection::addresses::Address& base_fire_guns_get_inaccuracy;
+extern const ::protection::addresses::Address& button_state_alloc;
+extern const ::protection::addresses::Address& cmd_interpreter;
+extern const ::protection::addresses::Address& create_move;
+extern const ::protection::addresses::Address& csgo_input;
+extern const ::protection::addresses::Address& draw_flash_effect;
+extern const ::protection::addresses::Address& draw_legs;
+extern const ::protection::addresses::Address& draw_overhead;
+extern const ::protection::addresses::Address& draw_scene_object;
+extern const ::protection::addresses::Address& draw_scene_object_array;
+extern const ::protection::addresses::Address& draw_skybox_array;
+extern const ::protection::addresses::Address& dynamic_light_alloc;
+extern const ::protection::addresses::Address& dynamic_light_manager;
+extern const ::protection::addresses::Address& dynamic_light_time;
+extern const ::protection::addresses::Address& engine_client_cmd;
+extern const ::protection::addresses::Address& entity_list;
+extern const ::protection::addresses::Address& filesystem_close;
+extern const ::protection::addresses::Address& find_hud_element;
+extern const ::protection::addresses::Address& frame_input_ring_base;
+extern const ::protection::addresses::Address& frame_input_ring_idx;
+extern const ::protection::addresses::Address& frame_stage_notify;
+extern const ::protection::addresses::Address& game_entity_system;
+extern const ::protection::addresses::Address& game_event_get_controller;
+extern const ::protection::addresses::Address& game_event_get_float;
+extern const ::protection::addresses::Address& game_event_get_int;
+extern const ::protection::addresses::Address& game_event_get_pawn;
+extern const ::protection::addresses::Address& game_event_get_string;
+extern const ::protection::addresses::Address& game_event_manager;
+extern const ::protection::addresses::Address& game_rules;
+extern const ::protection::addresses::Address& game_scene_node_set_mesh_group;
+extern const ::protection::addresses::Address& game_scene_node_set_skeleton;
+extern const ::protection::addresses::Address& game_trace_manager;
+extern const ::protection::addresses::Address& generate_primitives;
+extern const ::protection::addresses::Address& get_aim_punch;
+extern const ::protection::addresses::Address& get_bone_index;
+extern const ::protection::addresses::Address& get_glow_color;
+extern const ::protection::addresses::Address& get_inaccuracy;
+extern const ::protection::addresses::Address& get_interp_amount;
+extern const ::protection::addresses::Address& get_interpolated_shoot_position;
+extern const ::protection::addresses::Address& get_spread;
+extern const ::protection::addresses::Address& get_net_channel;
+extern const ::protection::addresses::Address& get_tick_view_angles;
+extern const ::protection::addresses::Address& get_transforms_for_hitbox_list;
+extern const ::protection::addresses::Address& get_usercmd;
+extern const ::protection::addresses::Address& get_usercmd_base;
+extern const ::protection::addresses::Address& get_view_angles;
+extern const ::protection::addresses::Address& get_world_group_handle;
+extern const ::protection::addresses::Address& get_world_group_id;
+extern const ::protection::addresses::Address& global_vars;
+extern const ::protection::addresses::Address& handle_view_angles;
+extern const ::protection::addresses::Address& history_field_alloc;
+extern const ::protection::addresses::Address& hud;
+extern const ::protection::addresses::Address& hud_death_notice_clear;
+extern const ::protection::addresses::Address& hud_weapon_selection_update;
+extern const ::protection::addresses::Address& init_particle_path_buffer;
+extern const ::protection::addresses::Address& init_particle_path_buffer_alt;
+extern const ::protection::addresses::Address& is_glowing;
+extern const ::protection::addresses::Address& item_system;
+extern const ::protection::addresses::Address& kv3_alloc;
+extern const ::protection::addresses::Address& kv3_destroy;
+extern const ::protection::addresses::Address& kv3_load;
+extern const ::protection::addresses::Address& level_initialization;
+extern const ::protection::addresses::Address& level_shutdown;
+extern const ::protection::addresses::Address& light_data_queue;
+extern const ::protection::addresses::Address& light_scene_object;
+extern const ::protection::addresses::Address& local_player_controller;
+extern const ::protection::addresses::Address& log_internal;
+extern const ::protection::addresses::Address& material_create;
+extern const ::protection::addresses::Address& material_manager;
+extern const ::protection::addresses::Address& override_view;
+extern const ::protection::addresses::Address& parse_report_hit;
+extern const ::protection::addresses::Address& particle_create_effect;
+extern const ::protection::addresses::Address& particle_destroy_effect;
+extern const ::protection::addresses::Address& particle_manager;
+extern const ::protection::addresses::Address& particle_set_control_point;
+extern const ::protection::addresses::Address& particle_set_entity_binding;
+extern const ::protection::addresses::Address& particle_set_transform;
+extern const ::protection::addresses::Address& planted_c4;
+extern const ::protection::addresses::Address& post_network_data_received;
+extern const ::protection::addresses::Address& prepare_scene_material;
+extern const ::protection::addresses::Address& process_input_event;
+extern const ::protection::addresses::Address& read_frame_input;
+extern const ::protection::addresses::Address& remove_entity;
+extern const ::protection::addresses::Address& render_crosshair;
+extern const ::protection::addresses::Address& render_decals;
+extern const ::protection::addresses::Address& render_game_system_storage;
+extern const ::protection::addresses::Address& render_scope;
+extern const ::protection::addresses::Address& render_smoke;
+extern const ::protection::addresses::Address& render_view;
+extern const ::protection::addresses::Address& resource_system_load;
+extern const ::protection::addresses::Address& resource_system_precache;
+extern const ::protection::addresses::Address& serialize_move_crc;
+extern const ::protection::addresses::Address& service_read;
+extern const ::protection::addresses::Address& set_info;
+extern const ::protection::addresses::Address& set_player_model;
+extern const ::protection::addresses::Address& set_postprocess_vec;
+extern const ::protection::addresses::Address& set_shader_param;
+extern const ::protection::addresses::Address& set_shader_param_i;
+extern const ::protection::addresses::Address& set_view_angles;
+extern const ::protection::addresses::Address& set_voice_data;
+extern const ::protection::addresses::Address& sort_primitives;
+extern const ::protection::addresses::Address& setup_fog;
+extern const ::protection::addresses::Address& play_sound;
+extern const ::protection::addresses::Address& string_copy;
+extern const ::protection::addresses::Address& subtick_move_alloc;
+extern const ::protection::addresses::Address& trace_bullet;
+extern const ::protection::addresses::Address& trace_bullet_data_init;
+extern const ::protection::addresses::Address& trace_bullet_free;
+extern const ::protection::addresses::Address& trace_bullet_update;
+extern const ::protection::addresses::Address& trace_filter_init;
+extern const ::protection::addresses::Address& trace_filter_set_collision;
+extern const ::protection::addresses::Address& trace_hull;
+extern const ::protection::addresses::Address& trace_ray;
+extern const ::protection::addresses::Address& trace_ray_entity;
+extern const ::protection::addresses::Address& update_fov_sensitivity;
+extern const ::protection::addresses::Address& utl_vector_push;
+extern const ::protection::addresses::Address& view_matrix;
+extern const ::protection::addresses::Address& viewmodel_update_mesh;
+extern const ::protection::addresses::Address& weapon_calculate_spread;
+extern const ::protection::addresses::Address& weapon_get_entity_index;
+extern const ::protection::addresses::Address& weapon_get_model_path;
+extern const ::protection::addresses::Address& weapon_get_recoil_offset;
+extern const ::protection::addresses::Address& weapon_get_viewmodel;
+extern const ::protection::addresses::Address& weapon_recoil_data;
+extern const ::protection::addresses::Address& weapon_set_mesh_group_mask;
+extern const ::protection::addresses::Address& weapon_update_accuracy;
+extern const ::protection::addresses::Address& weapon_update_composite_material;
+extern const ::protection::addresses::Address& weapon_update_mesh;
+extern const ::protection::addresses::Address& weapon_update_skin;
+extern const ::protection::addresses::Address& econ_item_view_set_attribute;
+extern const ::protection::addresses::Address& econ_item_view_remove_attribute;
+extern const ::protection::addresses::Address&
+    econ_item_view_invalidate_description;
+extern const ::protection::addresses::Address& set_bodygroup;
+
+extern const ::protection::addresses::Address& agent_set_model;
+extern const ::protection::addresses::Address& glove_create_paint_kit;
+extern const ::protection::addresses::Address& glove_set_body_group;
+extern const ::protection::addresses::Address& knife_update_subclass;
+extern const ::protection::addresses::Address& add_key_chain_entity;
+extern const ::protection::addresses::Address& regenerate_skins;
+extern const ::protection::addresses::Address& clear_hud_weapon;
+extern const ::protection::addresses::Address& build_modern_skin;
+extern const ::protection::addresses::Address& find_hud_keychain_addon;
+extern const ::protection::addresses::Address& remove_hud_keychain_addon;
+extern const ::protection::addresses::Address& create_preview_item;
+extern const ::protection::addresses::Address& preview_block_ctor;
+extern const ::protection::addresses::Address& preview_parse_from_array;
+extern const ::protection::addresses::Address& preview_block_dtor;
+extern const ::protection::addresses::Address& preview_sticker_in_model_panel;
+extern const ::protection::addresses::Address& release_composite_materials;
+extern const ::protection::addresses::Address& ui_engine_pointer;
+extern const ::protection::addresses::Address& run_panorama_script;
+extern const ::protection::addresses::Address& main_menu_panel_pointer;
+extern const ::protection::addresses::Address& hud_panel_pointer;
+extern const ::protection::addresses::Address& panorama_create_render_targets;
+extern const ::protection::addresses::Address& panorama_acquire_layer_rt;
+extern const ::protection::addresses::Address& preview_player_constructor;
+
+}  // namespace patterns
+}  // export

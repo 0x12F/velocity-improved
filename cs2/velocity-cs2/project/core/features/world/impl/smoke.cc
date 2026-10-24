@@ -1,9 +1,16 @@
-#include "pch/pch.h"
+module;
 
-#include "core/features/world/world.h"
-#include "core/settings.h"
-#include "core/systems/systems.h"
-#include "utilities/memory/memory.h"
+#include "platform/platform.h"
+
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+
+module velocity;
+
+import <cstddef>;
+import <filesystem>;
+import <string_view>;
+import <type_traits>;
 
 // was a deadend.
 

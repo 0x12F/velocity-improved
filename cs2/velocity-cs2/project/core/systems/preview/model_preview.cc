@@ -1,12 +1,18 @@
-#include "pch/pch.h"
+module;
 
-#include "core/systems/preview/model_preview.h"
+#include "platform/platform.h"
 
-#include "core/features/changer/engine.h"
-#include "core/features/features.h"
-#include "core/systems/preview/model_preview_item.h"
-#include "core/systems/preview/model_preview_panorama.h"
-#include "protection/game_addresses.h"
+#include <external/config.hpp>
+#include <external/nlohmann/json.hpp>
+#include <external/xdraw/xdraw.hpp>
+
+module velocity;
+
+import <cstddef>;
+import <filesystem>;
+import <limits>;
+import <string_view>;
+import <type_traits>;
 
 namespace systems::model_preview {
 bool Initialize(ID3D11Device* device, ID3D11DeviceContext* context) {

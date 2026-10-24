@@ -1,10 +1,12 @@
-#include "pch/pch.h"
+module;
 
-#include "utilities/discord_webhook.h"
+#include "platform/platform.h"
 
 #include <winhttp.h>
 
-#include "utilities/logging/logging.h"
+module velocity;
+
+import <string_view>;
 
 /*
  you can use this to log your things to a discord channel. for eg. ragebot logs.

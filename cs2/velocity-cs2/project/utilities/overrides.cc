@@ -1,9 +1,14 @@
-#include "pch/pch.h"
+#include "platform/platform.h"
 
-#include "protection/game_addresses.h"
-#include "utilities/memory/memory.h"
+import <cstddef>;
+import <string_view>;
+import <type_traits>;
 
-inline __attribute__((always_inline)) void* GameAlloc(std::size_t size) {
+#include "protection/address_macros.h"
+
+import velocity;
+
+__forceinline void* GameAlloc(std::size_t size) {
   const auto memalloc =
       *reinterpret_cast<void**>(MODULE_EXPORT("tier0.dll:g_pMemAlloc"));
   const auto vtable = *reinterpret_cast<void***>(memalloc);
@@ -11,7 +16,7 @@ inline __attribute__((always_inline)) void* GameAlloc(std::size_t size) {
       memalloc, size);
 }
 
-inline __attribute__((always_inline)) void GameFree(void* ptr) {
+__forceinline void GameFree(void* ptr) {
   const auto memalloc =
       *reinterpret_cast<void**>(MODULE_EXPORT("tier0.dll:g_pMemAlloc"));
   const auto vtable = *reinterpret_cast<void***>(memalloc);
