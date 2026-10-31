@@ -112,6 +112,15 @@ bool knife_application::IsKnifeDefinition(std::uint16_t definition_index) {
          (definition_index >= 500 && definition_index <= 526);
 }
 
+bool knife_application::Restore(engine::Weapon *weapon, engine::ItemView *item,
+                                 std::uint16_t definition, int subclass) {
+  const auto *original = g_econ_item_system.FindDef(definition);
+  if (!weapon || !item || !original || original->model_player.empty()) return false;
+  item->MIItemDefinitionIndex() = definition;
+  weapon->MNSubclassId() = subclass;
+  return UpdateSubclass(weapon) && SetModel(weapon, original->model_player.c_str());
+}
+
 bool knife_application::Apply(engine::Weapon *weapon, engine::ItemView *item,
                               std::uint16_t target_definition_index) {
   if (!weapon || !item) return false;

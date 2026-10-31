@@ -10,6 +10,7 @@ module;
 
 module velocity;
 
+import <algorithm>;
 import <cstddef>;
 import <filesystem>;
 import <string_view>;
@@ -28,71 +29,50 @@ void Input::Update() {
   this->m_current_cmd_ = this->GetCurrentCmd(local_controller);
 }
 
-void Input::Apply() {
+void Input::Apply(bool suppress_move_alignment) {
   const auto local = systems::g_local.Get();
-
   if (!this->m_current_cmd_) {
     return;
   }
-
   const auto base = this->m_current_cmd_->csgo_user_cmd.MutableBase();
   if (!base) {
     return;
   }
-
   auto has_move_subticks = [](proto::BaseUsercmdPb* base_cmd) {
-    for (auto i = 0; i < base_cmd->SubtickMovesSize(); ++i) {
+    for (size_t i = 0; i < base_cmd->SubtickMovesSize(); i++) {
       proto::SubtickMoveStep* step = base_cmd->MutableSubtickMoves(i);
-      if (!step) continue;
-
       if (step->m_has_bits.Test(0x8) || step->m_has_bits.Test(0x10))
         return true;
-
       if (step->m_has_bits.Test(0x1)) return true;
     }
-
     return false;
   };
-
   diag::SetExceptionPhase("input apply: subtick movement");
-  if (!has_move_subticks(base)) {
-    const auto movement_services =
-        local.pawn ? memory::Read<std::uintptr_t>(
-                         local.pawn +
-                         SCHEMA("C_BasePlayerPawn", "m_pMovementServices"_hash))
-                   : 0;
-
-    if (movement_services) {
-      const auto forward_delta =
-          base->Forwardmove() -
-          memory::Read<float>(
-              movement_services +
-              SCHEMA("CPlayer_MovementServices", "m_flCmdForwardMove"_hash));
-      const auto left_delta =
-          base->Leftmove() -
-          memory::Read<float>(
-              movement_services +
-              SCHEMA("CPlayer_MovementServices", "m_flCmdLeftMove"_hash));
-
-      const auto has_meaningful_delta = std::isfinite(forward_delta) &&
-                                        std::isfinite(left_delta) &&
-                                        (std::fabsf(forward_delta) > 0.0001f ||
-                                         std::fabsf(left_delta) > 0.0001f);
-
-      if (has_meaningful_delta) {
-        const auto step =
-            systems::g_input.AcquireSubtickStep(base->MutableSubtickMoves());
-        if (!step) return;
-
+  if (!suppress_move_alignment && !has_move_subticks(base)) {
+    if (const auto step =
+            systems::g_input.AcquireSubtickStep(base->MutableSubtickMoves())) {
+      const auto movement_services =
+          local.pawn ? memory::Read<std::uintptr_t>(
+                           local.pawn + SCHEMA("C_BasePlayerPawn",
+                                               "m_pMovementServices"_hash))
+                     : 0;
+      if (movement_services) {
         step->SetButton(0);
         step->SetPressed(false);
         step->SetWhen(0.0f);
-        step->SetAnalogForwardDelta(forward_delta);
-        step->SetAnalogLeftDelta(left_delta);
+        step->SetAnalogForwardDelta(
+            base->Forwardmove() -
+            memory::Read<float>(
+                movement_services +
+                SCHEMA("CPlayer_MovementServices", "m_flCmdForwardMove"_hash)));
+        step->SetAnalogLeftDelta(
+            base->Leftmove() -
+            memory::Read<float>(
+                movement_services +
+                SCHEMA("CPlayer_MovementServices", "m_flCmdLeftMove"_hash)));
       }
     }
   }
-
   diag::SetExceptionPhase("input apply: buttons");
   auto buttons = const_cast<proto::InButtonStatePb*>(base->ButtonsPb());
   if (!buttons) {
@@ -103,7 +83,6 @@ void Input::Apply() {
     if (arena_bits & 1) {
       arena = memory::Read<std::uintptr_t>(arena);
     }
-
     const auto raw_buttons =
         memory::Call<void*>(PATTERN(patterns::button_state_alloc), arena);
     if (raw_buttons) {
@@ -112,16 +91,48 @@ void Input::Apply() {
       buttons = proto::ImplPtr<proto::InButtonStatePb>(raw_buttons);
     }
   }
-
   if (buttons) {
     base->m_has_bits.Set(0x2u);
     buttons->SetButtonstate1(this->m_current_cmd_->buttons.value);
     buttons->SetButtonstate2(this->m_current_cmd_->buttons.value_changed);
     buttons->SetButtonstate3(this->m_current_cmd_->buttons.value_scroll);
   }
-
+  {
+    auto& usercmd = this->m_current_cmd_->csgo_user_cmd;
+    const auto history_size = usercmd.InputHistorySize();
+    if (usercmd.Attack1StartHistoryIndex() < -1 ||
+        usercmd.Attack1StartHistoryIndex() >= history_size)
+      usercmd.SetAttack1StartHistoryIndex(-1);
+    if (usercmd.Attack2StartHistoryIndex() < -1 ||
+        usercmd.Attack2StartHistoryIndex() >= history_size)
+      usercmd.SetAttack2StartHistoryIndex(-1);
+  }
   diag::SetExceptionPhase("input apply: crc");
   this->CalculateCrc(base);
+}
+bool Input::HasMovementSubticks(proto::BaseUsercmdPb* base) const {
+  if (!base) {
+    return false;
+  }
+
+  for (auto i = 0; i < base->SubtickMovesSize(); ++i) {
+    const auto step = base->MutableSubtickMoves(i);
+    if (!step) {
+      continue;
+    }
+
+    const auto has_forward = step->m_has_bits.Test(0x8);
+    const auto has_left = step->m_has_bits.Test(0x10);
+    // Button events carry zero analog fields too. Only an analog command or a
+    // nonzero delta replaces movement; a jump/duck event must preserve it.
+    if ((step->Button() == 0 && (has_forward || has_left)) ||
+        (has_forward && step->AnalogForwardDelta() != 0.0f) ||
+        (has_left && step->AnalogLeftDelta() != 0.0f)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 Input::Usercmd* Input::GetCurrentCmd(std::uintptr_t local_controller) const {
@@ -291,7 +302,40 @@ void Input::SetViewAngles(const math::Vector3& angles) const {
 }
 
 void Input::Desubtick(Usercmd* cmd) const {
-  cmd->csgo_user_cmd.MutableBase()->MutableSubtickMoves()->Clear();
+  if (!cmd) {
+    return;
+  }
+
+  const auto base = cmd->csgo_user_cmd.MutableBase();
+  if (!base) {
+    return;
+  }
+
+  const auto moves = base->MutableSubtickMoves();
+  if (!moves || !moves->m_rep) {
+    return;
+  }
+
+  // Rebuild movement each update, keeping attack events in their original order.
+  // Leave discarded messages in the allocated pool so they can be reused.
+  auto retained_count = 0;
+  for (auto i = 0; i < moves->m_current_size; ++i) {
+    const auto step = moves->MutableAt(i);
+    if (!step || !step->m_has_bits.Test(0x1)) {
+      continue;
+    }
+
+    const auto attack_buttons = cstypes::command_buttons::kInAttack |
+                                cstypes::command_buttons::kInSecondAttack;
+    if (!(step->Button() & attack_buttons)) {
+      continue;
+    }
+
+    std::swap(moves->m_rep->elements[retained_count],
+              moves->m_rep->elements[i]);
+    ++retained_count;
+  }
+  moves->m_current_size = retained_count;
 }
 
 void Input::SetWeaponSelect(Usercmd* cmd, std::uintptr_t csgo_input) const {

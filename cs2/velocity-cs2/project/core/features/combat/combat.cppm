@@ -14,6 +14,7 @@ import <cstddef>;
 import <cstdint>;
 import <deque>;
 import <filesystem>;
+import <memory>;
 import <mutex>;
 import <optional>;
 import <shared_mutex>;
@@ -264,7 +265,8 @@ class Shared {
       std::uintptr_t local_pawn, bool newest = false) const;
   [[nodiscard]] int CalculateStopTicks(const math::Vector3& velocity,
                                        float max_speed,
-                                       std::uintptr_t local_pawn) const;
+                                       std::uintptr_t local_pawn,
+                                       float surface_friction_override = -1.0f) const;
   [[nodiscard]] float GetSpread() const;
   [[nodiscard]] float GetInaccuracy(bool update_accuracy_penalty) const;
   [[nodiscard]] float GetInaccuracyAtVelocity(
@@ -416,7 +418,7 @@ class Rage {
     math::Vector3 view_angles{};
     math::Vector3 velocity{};
 
-    float predicted_inaccuracy{};
+    float inaccuracy{};
     float spread{};
 
     float weapon_max_speed{};
@@ -448,6 +450,7 @@ class Rage {
     int armor{};
     float min_damage{};
     std::array<Shared::Lagcomp::Record*, kMaxLagcompRecords> records{};
+    std::unique_ptr<Shared::Lagcomp::Record> extrapolated_record{};
     int record_count{};
     HeadScanStats head_scan{};
   };
@@ -494,6 +497,11 @@ class Rage {
 
   [[nodiscard]] AimContext BuildContext(
       const systems::Local::Snapshot& local) const;
+  [[nodiscard]] Shared::ShootHistory::EyeCandidates GetEyeCandidates() const;
+  void WriteInputHistoryEntry(
+      systems::Input::Usercmd* cmd, int index, const math::Vector3& aim_angle,
+      const math::Vector3& aim_punch, const cstypes::TickFraction& record_time,
+      const Shared::ShootHistory::EyeCandidate& source_eye) const;
   [[nodiscard]] std::optional<StopPrediction> PredictStop(
       const AimContext& ctx, const math::Vector3& current_eye,
       const systems::Local::Snapshot& local) const;
@@ -517,10 +525,13 @@ class Rage {
   [[nodiscard]] std::vector<ScanHit> ScanPlayer(
       const math::Vector3& eye, float inaccuracy, const AimContext& ctx,
       Candidate& cand, Shared::Lagcomp::Record* record,
+      const systems::Hitboxes::Set& hitbox_set,
       const systems::Local::Snapshot& local) const;
   [[nodiscard]] Target SelectBest(const AimContext& aim_ctx,
                                   const std::vector<ScanHit>& hits,
                                   float eval_inaccuracy) const;
+  [[nodiscard]] float EvaluateHitchance(const ScanHit& hit, const AimContext& ctx,
+                                        float inaccuracy) const;
   [[nodiscard]] float GetStandingInaccuracy(
       const systems::Local::Snapshot& local, const AimContext& ctx) const;
 
@@ -536,9 +547,9 @@ class Rage {
       std::vector<Candidate>& candidates,
       const systems::Local::Snapshot& local) const;
 
-  void FireGun(systems::Input::Usercmd* cmd, const Target& tgt, bool was_forced,
+  void FireGun(systems::Input::Usercmd* cmd, const Target& tgt,
                const math::Vector3& shoot_eye,
-               const systems::Local::Snapshot& local, bool subtick_attack);
+               const systems::Local::Snapshot& local);
   void FireMelee(systems::Input::Usercmd* cmd, const Target& tgt,
                  const systems::Local::Snapshot& local);
 
@@ -546,7 +557,8 @@ class Rage {
       const systems::Hitboxes::Entry& hitbox, const math::Vector3& center,
       const math::Quaternion& bone_rot, float pointscale,
       const math::Vector3& shoot_pos, float inaccuracy) const;
-  [[nodiscard]] bool ShouldStopMovement(const AimContext& ctx) const;
+  [[nodiscard]] bool ShouldStopMovement(
+      const AimContext& ctx, const systems::Local::Snapshot& local) const;
   [[nodiscard]] float GetMinDamage(
       const settings::Combat::Ragebot::WeaponGroup& config, int target_health,
       bool override_active) const;

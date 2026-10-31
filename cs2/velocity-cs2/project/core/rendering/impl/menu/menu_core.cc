@@ -1,6 +1,7 @@
 module;
 
 #include "platform/platform.h"
+#include "core/rendering/branding.h"
 
 #include <external/config.hpp>
 #include <external/nlohmann/json.hpp>
@@ -106,8 +107,6 @@ namespace detail {
 
 namespace svgs {
 
-constexpr auto kLogo =
-    R"(<svg width="17" height="14" viewBox="0 0 17 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.148138 10.5306L7.19953 0.643266C7.81122 -0.214422 9.08773 -0.214422 9.69942 0.643266L16.7254 10.4949C17.099 11.0189 16.7236 11.7453 16.0792 11.7453H14.5344C14.1378 11.7453 13.7815 11.5036 13.6355 11.1356L11.5458 5.86857C11.4326 5.58318 11.1562 5.3957 10.8486 5.3957C10.7131 5.3957 10.6149 5.52457 10.651 5.65485L12.6899 12.9972C12.8299 13.5014 12.4499 14 11.9256 14H10.5367C10.2323 14 9.97322 13.7786 9.92648 13.4784L8.68012 4.66254C8.64757 4.45362 8.28767 4.45728 8.24676 4.66475L6.57384 13.5028C6.51683 13.7917 6.26301 14 5.96795 14H4.58215C4.04293 14 3.66094 13.4746 3.8282 12.9631L6.17936 5.7721C6.23588 5.59921 6.10678 5.4216 5.92452 5.4216H5.87377C5.57672 5.4216 5.30764 5.59658 5.1877 5.86781L2.81532 11.2326C2.65733 11.5899 2.29903 11.8169 1.9078 11.8076L0.775512 11.7808C0.139818 11.7656 -0.220464 11.0476 0.148214 10.5306H0.148138Z" fill="#111111"/> </svg>)";
 constexpr auto kSearch =
     R"(<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 6.66667C2 7.2795 2.12071 7.88634 2.35523 8.45252C2.58975 9.01871 2.93349 9.53316 3.36683 9.9665C3.80017 10.3998 4.31462 10.7436 4.88081 10.9781C5.447 11.2126 6.05383 11.3333 6.66667 11.3333C7.2795 11.3333 7.88634 11.2126 8.45252 10.9781C9.01871 10.7436 9.53316 10.3998 9.9665 9.9665C10.3998 9.53316 10.7436 9.01871 10.9781 8.45252C11.2126 7.88634 11.3333 7.2795 11.3333 6.66667C11.3333 6.05383 11.2126 5.447 10.9781 4.88081C10.7436 4.31462 10.3998 3.80017 9.9665 3.36683C9.53316 2.93349 9.01871 2.58975 8.45252 2.35523C7.88634 2.12071 7.2795 2 6.66667 2C6.05383 2 5.447 2.12071 4.88081 2.35523C4.31462 2.58975 3.80017 2.93349 3.36683 3.36683C2.93349 3.80017 2.58975 4.31462 2.35523 4.88081C2.12071 5.447 2 6.05383 2 6.66667Z" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 14L10 10" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>)";
 constexpr auto kSettings =
@@ -942,7 +941,7 @@ void Menu::InitializeGraphics() {
 
   constexpr auto kIconTarget{16.0f};
   this->m_textures_.logo.resource = xdraw::load_svg(
-      svgs::kLogo, kIconTarget / 14.0f, &this->m_textures_.logo.width,
+      velocity_branding::kLogo, kIconTarget / 14.0f, &this->m_textures_.logo.width,
       &this->m_textures_.logo.height);
 
   constexpr float kIntroLogoViewW{4421.68f};
@@ -1660,6 +1659,11 @@ void Menu::ApplyThemePreset(int preset) {
       tokens::col_elevated = xdraw::color{35, 35, 39, 126};
       break;
   }
+  const auto& accent = tokens::col_accent;
+  m_accent_rgb_.store((static_cast<std::uint32_t>(accent.r) << 16) |
+                          (static_cast<std::uint32_t>(accent.g) << 8) |
+                          static_cast<std::uint32_t>(accent.b),
+                      std::memory_order_relaxed);
 }
 
 void Menu::SyncThemeStyle() const {

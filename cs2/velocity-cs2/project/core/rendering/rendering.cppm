@@ -7,6 +7,7 @@ module;
 export module velocity:core.rendering.rendering;
 
 import <array>;
+import <atomic>;
 import <cstddef>;
 import <cstdint>;
 import <span>;
@@ -55,6 +56,9 @@ class Menu {
 
   void Toggle() { this->m_open_ = !this->m_open_; }
   [[nodiscard]] bool IsOpen() const { return this->m_open_; }
+  [[nodiscard]] std::uint32_t GetAccentRgb() const {
+    return m_accent_rgb_.load(std::memory_order_relaxed);
+  }
   void ApplySavedCursor();
 
   enum class Tab : int {
@@ -122,6 +126,7 @@ class Menu {
   bool m_intro_finished_{};
   bool m_search_open_{};
   int m_theme_preset_{};
+  std::atomic<std::uint32_t> m_accent_rgb_{0xadc0ff};
   float m_user_avatar_retry_delay_{};
   std::string m_search_query_{};
   std::vector<std::size_t> m_search_visible_indices_{};

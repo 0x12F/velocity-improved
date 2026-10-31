@@ -11,6 +11,14 @@ export import :core.features.changer.agent_changer;
 export import :core.features.changer.cosmetic_configuration;
 
 export {
+namespace features::changer::shared_skins {
+void Run();
+void AfterFrame();
+void Reset();
+void OnEntityRemoved(std::uint32_t handle);
+[[nodiscard]] bool IsUser(std::uint64_t steam_id);
+}  // namespace features::changer::shared_skins
+
 namespace features::changer::application {
 void Run();
 void ForceUpdate();

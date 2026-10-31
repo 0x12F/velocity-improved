@@ -45,5 +45,6 @@ bool RebuildHudKeychainAddon(
 
 void ClearHudWeaponIconFor(features::changer::engine::BaseEntity* weapon);
 void RegenerateSkins();
+void RefreshWorld(engine::Weapon* weapon, engine::ItemView* item);
 }  // namespace features::changer::skin_application
 }  // export

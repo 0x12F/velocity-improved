@@ -244,17 +244,25 @@ void DrawPreview(const ItemSystem::ItemDef& item, const xui::rect& area) {
 
 float Menu::DrawSkinEditor(float x, float y, float width, float height,
                            std::int16_t browsing_definition) const {
-  constexpr float kHeaderHeight = 32.0f;
+  constexpr float kExpandButtonHeight = 24.0f;
+  const auto& style = xui::ctx().style;
+  const float controls_y = y + kExpandButtonHeight + style.item_spacing_y;
+  const float header_height =
+      kExpandButtonHeight + style.item_spacing_y + style.checkbox_size +
+      tokens::gap;
   xui::layout::set_cursor(x - m_x_, y - m_y_);
   if (xui::button(editor.expanded ? "- skin options & preview"
                                   : "+ skin options & preview",
-                  width * 0.5f, 24.0f))
+                  width, kExpandButtonHeight))
     editor.expanded = !editor.expanded;
-  xui::layout::same_line();
+  xui::layout::set_cursor(x - m_x_, controls_y - m_y_);
   xui::checkbox("enabled##skinchanger", settings::g_changer.enabled);
+  xui::layout::set_cursor(x + (width + tokens::gap) * 0.5f - m_x_,
+                          controls_y - m_y_);
+  xui::checkbox("shared skins", settings::g_changer.shared);
   if (!editor.expanded) {
     backend::ClosePreview();
-    return kHeaderHeight;
+    return header_height;
   }
 
   const float panel_height = std::min(210.0f, height * 0.52f);
@@ -262,7 +270,7 @@ float Menu::DrawSkinEditor(float x, float y, float width, float height,
   const auto& items = ItemsForTab(m_subtab_);
   if (items.empty()) {
     backend::ClosePreview();
-    return kHeaderHeight;
+    return header_height;
   }
 
   if (editor.last_subtab != m_subtab_) {
@@ -282,7 +290,7 @@ float Menu::DrawSkinEditor(float x, float y, float width, float height,
   editor.item_index =
       std::clamp(editor.item_index, 0, static_cast<int>(items.size()) - 1);
 
-  xui::layout::set_cursor(x - m_x_, y + kHeaderHeight - m_y_);
+  xui::layout::set_cursor(x - m_x_, y + header_height - m_y_);
   if (xui::begin_child(std::format("##skin_editor_options_{}", m_subtab_),
                        column_width, panel_height, true)) {
     const ClippedClicks clip_input(xui::layout::current_window()->bounds);
@@ -310,8 +318,8 @@ float Menu::DrawSkinEditor(float x, float y, float width, float height,
     xui::end_child();
   }
   DrawPreview(*items[editor.item_index],
-              {x + column_width + tokens::gap, y + kHeaderHeight, column_width,
+              {x + column_width + tokens::gap, y + header_height, column_width,
                panel_height});
-  return kHeaderHeight + panel_height + tokens::gap;
+  return header_height + panel_height + tokens::gap;
 }
 }  // namespace rendering

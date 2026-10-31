@@ -16,7 +16,7 @@ namespace rendering {
 namespace detail {
 
 constexpr const char* kHitboxNames[]{"head", "chest", "stomach",
-                                     "arms", "legs",  "paws"};
+                                     "arms", "legs",  "feet"};
 constexpr const char* kPitchItems[]{"none", "down", "up"};
 
 }  // namespace detail
@@ -30,7 +30,6 @@ void Menu::DrawRagebot(float group_w) const {
   auto& zb = s.m_zeusbot;
   auto& kb = s.m_knifebot;
   auto& autos = s.m_autos;
-  auto& lg = s.m_lagcomp;
 
   auto& wg = rb.groups[this->m_subtab_];
 
@@ -47,46 +46,38 @@ void Menu::DrawRagebot(float group_w) const {
 
   if (xui::begin_child("##ragebot_aimbot", col_w)) {
     xui::checkbox("enabled", rb.enabled);
-    xui::checkbox("silent", wg.silent);
-    xui::checkbox("no spread", wg.no_spread);
-    xui::checkbox("double tap", wg.doubletap);
-    xui::checkbox("force shot in air", wg.force_shot_air);
-    xui::checkbox("force shot on ground", wg.force_shot);
-    xui::checkbox("extrapolation", lg.extrapolation);
-    xui::slider_int("max extrapolate", lg.max_extrapolate_ticks, 1, 16,
-                    "%d tick(s)");
-    xui::slider_float("max fov", wg.max_fov, 1.0f, 180.0f, "%.0f°");
-
-    xui::slider_int("hit chance", wg.hitchance, 25, 100, "%d%%");
-    xui::slider_int("min damage", wg.min_damage, 5, 125, "%d");
-    /*xui::slider_int( "max backtrack", s.m_lagcomp.max_backtrack_ticks, 1, 16,
-     * "%d tick(s)" );*/
-
-    xui::checkbox("hit chance override", wg.hitchance_override);
+    xui::checkbox("silent", rb.silent);
+    xui::checkbox("nospread", rb.no_spread);
+    xui::checkbox("autostop", wg.autostop);
+    if (this->m_subtab_ == 4) {
+      xui::checkbox("autoscope", autos.scope);
+    }
+    xui::slider_float("fov", wg.max_fov, 1.0f, 180.0f, "%.0f°");
+    xui::slider_int("hitchance", wg.hitchance, 0, 100, "%d%%");
+    xui::slider_int("mindamage", wg.min_damage, 1, 125, "%d");
+    xui::checkbox("hitchance override", wg.hitchance_override);
     if (xui::begin_popup("##hitchance_popup", 220.0f)) {
-      xui::slider_int("value##hc", wg.hitchance_override_value, 0, 100, "%d%%");
+      xui::slider_int("value##hc", wg.hitchance_override_value, 1, 100, "%d%%");
       xui::end_popup();
     }
-
-    xui::checkbox("min damage override", wg.min_damage_override);
+    xui::checkbox("mindamage override", wg.min_damage_override);
     if (xui::begin_popup("##mindamage_popup", 220.0f)) {
       xui::slider_int("value##md", wg.min_damage_override_value, 0, 130, "%d");
       xui::end_popup();
     }
-
     xui::end_child();
   }
-
-  if (xui::begin_child("##ragebot_extras", col_w, 190.0f, true)) {
-    xui::checkbox("force b-aim", wg.body_aim);
+  if (xui::begin_child("##ragebot_extras", col_w)) {
+    xui::checkbox("extrapolation", s.m_lagcomp.extrapolation);
+    if (s.m_lagcomp.extrapolation.value) {
+      xui::slider_int("max extrapolate", s.m_lagcomp.max_extrapolate_ticks, 1,
+                      16, "%d tick(s)");
+    }
     xui::checkbox("dynamic point scale", wg.dynamic_pointscale);
-    xui::checkbox("debug multipoints", wg.debug_multipoints);
-    xui::slider_float("point scale", wg.pointscale, 0.0f, 100.0f, "%.0f%%");
+    xui::slider_float("pointscale", wg.pointscale, 0.0f, 100.0f, "%.0f%%");
     xui::multicombo("hitboxes", wg.hitboxes, detail::kHitboxNames, 6);
-
     xui::end_child();
   }
-
   xui::layout::set_cursor(right_x - wx, body_y - wy);
 
   if (xui::begin_child("##ragebot_antiaim", col_w)) {
@@ -114,6 +105,7 @@ void Menu::DrawRagebot(float group_w) const {
   }
 
   if (xui::begin_child("##ragebot_otherbots", col_w)) {
+    xui::checkbox("auto scope", autos.scope);
     xui::checkbox("auto revolver", autos.revolver);
 
     xui::checkbox("zeusbot", zb.enabled);

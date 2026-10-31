@@ -25,51 +25,30 @@ namespace settings {
 struct Combat {
   struct Ragebot {
     static constexpr auto kGroupCount{6u};
-
-    xui::setting enabled{true, {}, "enabled", "ragebot"};
-
+    xui::setting enabled{false, {}, "enabled", "ragebot"};
+    xui::setting silent{true, {}, "silent", "ragebot"};
+    xui::setting no_spread{false, {}, "no spread", "ragebot"};
     struct WeaponGroup {
-      xui::setting silent{true, {}, "silent", "ragebot"};
-      xui::setting no_spread{false, {}, "no spread", "ragebot"};
-      xui::setting doubletap{false, {}, "doubletap", "ragebot"};
-      xui::setting body_aim{false, {}, "force b-aim", "ragebot"};
-      xui::setting force_shot_air{false, {}, "force shot in air", "ragebot"};
-      xui::setting force_shot{false, {}, "force shot on ground", "ragebot"};
-
+      xui::setting autostop{true, {}, "autostop", "ragebot"};
       config::val<float> max_fov{180.0f};
-
-      config::val<int> hitchance{80};
-      config::val<int> min_damage{101};
-
+      config::val<int> hitchance{60};
+      config::val<int> min_damage{30};
       config::val<int> min_damage_override_value{11};
       xui::setting min_damage_override{
           false, {}, "min damage override", "ragebot"};
-
       config::val<int> hitchance_override_value{75};
       xui::setting hitchance_override{
           false, {}, "hit chance override", "ragebot"};
-
       config::val<float> pointscale{85.0f};
       xui::setting dynamic_pointscale{
           true, {}, "dynamic point scale", "ragebot"};
-      xui::setting debug_multipoints{false, {}, "debug multipoints", "ragebot"};
-
       config::bools<6> hitboxes{{true, true, true, true, true, true}};
-
       void Init(std::string_view cat) {
         const auto s = std::string(cat);
-
-        this->silent.category = s;
-        this->no_spread.category = s;
-        this->doubletap.category = s;
-        this->body_aim.category = s;
-        this->force_shot_air.category = s;
-        this->force_shot.category = s;
+        this->autostop.category = s;
         this->min_damage_override.category = s;
         this->hitchance_override.category = s;
         this->dynamic_pointscale.category = s;
-        this->debug_multipoints.category = s;
-
         this->max_fov.reg(s, "max fov");
         this->hitchance.reg(s, "hit chance");
         this->min_damage.reg(s, "min damage");
@@ -78,42 +57,32 @@ struct Combat {
         this->pointscale.reg(s, "point scale");
         this->hitboxes.reg(s, "hitboxes");
       }
-
       void SetDefaultBinds() {
-        this->force_shot_air.bind = {.key = VK_XBUTTON1,
-                                     .mode = xui::bind_mode::hold_on};
         this->min_damage_override.bind = {.key = VK_XBUTTON2,
                                           .mode = xui::bind_mode::hold_on};
         this->hitchance_override.bind = {.key = VK_SPACE,
                                          .mode = xui::bind_mode::hold_on};
       }
     };
-
     std::array<WeaponGroup, kGroupCount> groups{};
-
     Ragebot() {
-      constexpr const char* kWeaponNames[]{"pistol",  "smg",    "rifle",
+      constexpr const char* weapon_names[]{"pistol",  "smg",    "rifle",
                                            "shotgun", "sniper", "lmg"};
-
       for (std::uint32_t i = 0; i < kGroupCount; ++i) {
-        this->groups[i].Init(std::string("ragebot - ") + kWeaponNames[i]);
+        this->groups[i].Init(std::string("ragebot - ") + weapon_names[i]);
       }
-
       this->groups[0].SetDefaultBinds();
       this->groups[4].SetDefaultBinds();
     }
-
     WeaponGroup& GetGroup(std::uint32_t weapon_type) {
       const auto idx = weapon_type - cstypes::weapon_type::kPistol;
       return this->groups[idx < kGroupCount ? idx : 2];
     }
-
     const WeaponGroup& GetGroup(std::uint32_t weapon_type) const {
       const auto idx = weapon_type - cstypes::weapon_type::kPistol;
       return this->groups[idx < kGroupCount ? idx : 2];
     }
   } m_ragebot{};
-
   struct Legitbot {
     static constexpr auto kGroupCount{6u};
 
@@ -1198,6 +1167,7 @@ struct Changer {
   SkinMapField skins{};
   AgentSelectionField agents{};
   xui::setting enabled{true, {}, "enabled", "skinchanger"};
+  xui::setting shared{true, {}, "shared skins", "skinchanger"};
 
   Changer() {
     config::detail::register_field(

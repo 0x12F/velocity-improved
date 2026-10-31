@@ -141,6 +141,20 @@ bool ApplyGloves(engine::PlayerItems *pawn, std::uint16_t definition_index,
 
 }  // namespace
 
+bool glove_application::ApplyShared(engine::PlayerItems *pawn,
+                                     std::uint16_t definition,
+                                     const cosmetic_config::ItemSkinT &skin) {
+  return ApplyGloves(pawn, definition, skin.paint_kit, skin.seed, skin.wear);
+}
+
+void glove_application::RefreshShared(engine::PlayerItems *pawn, int paint_kit) {
+  const auto set_body_group = GetSetBodyGroup();
+  if (!pawn || !set_body_group) return;
+  UpdateGloveVisuals(pawn, pawn->MEconGloves(), GetCreatePaintKit(),
+                     set_body_group, paint_kit);
+  pawn->MBNeedToReApplyGloves() = true;
+}
+
 void glove_application::Run(engine::PlayerItems *local_pawn) {
   if (!local_pawn || local_pawn->MIHealth() <= 0) return;
 

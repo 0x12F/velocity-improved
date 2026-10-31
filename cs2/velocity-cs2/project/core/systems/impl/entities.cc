@@ -54,6 +54,7 @@ void Entities::OnAddEntity(std::uintptr_t entity, std::uint32_t handle) {
 }
 
 void Entities::OnRemoveEntity(std::uintptr_t entity, std::uint32_t handle) {
+  features::changer::shared_skins::OnEntityRemoved(handle);
   if (!entity) {
     return;
   }

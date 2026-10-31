@@ -23,28 +23,21 @@ namespace {
 
 [[nodiscard]] std::optional<float> PredictLandingFraction(
     std::uintptr_t local_pawn, std::uintptr_t movement_services,
-    const systems::Prediction::State& prestate, bool holding_duck) {
+    const systems::Prediction::State& prestate) {
   if (prestate.networked_velocity.z > 0.0f) {
     return std::nullopt;
   }
 
-  const auto duck_amount = memory::Read<float>(
-      movement_services +
-      SCHEMA("CCSPlayer_MovementServices", "m_flDuckAmount"_hash));
   const auto mins = memory::Read<math::Vector3>(
       local_pawn + SCHEMA("C_BaseModelEntity", "m_Collision"_hash) +
       SCHEMA("CCollisionProperty", "m_vecMins"_hash));
-  auto maxs = memory::Read<math::Vector3>(
+  const auto maxs = memory::Read<math::Vector3>(
       local_pawn + SCHEMA("C_BaseModelEntity", "m_Collision"_hash) +
       SCHEMA("CCollisionProperty", "m_vecMaxs"_hash));
 
-  auto trace_origin = prestate.networked_origin;
-  if (holding_duck && duck_amount > 0.0f) {
-    const auto standing_height{72.0f};
-    const auto duck_hull_diff = standing_height - maxs.z;
-    trace_origin.z -= duck_hull_diff * 0.5f;
-    maxs.z = standing_height;
-  }
+  // The collision bounds already describe the current crouch state. Expanding
+  // them and lowering the origin can put the trace inside the floor.
+  const auto trace_origin = prestate.networked_origin;
 
   const auto filter = systems::g_tracing.MakePlayerMovementFilter(local_pawn);
   const auto sv_gravity = CONVAR("sv_gravity")->Get<float>();
@@ -147,10 +140,8 @@ void Bhop::OnCreateMove(systems::Input::Usercmd* cmd) {
     return;
   }
 
-  const auto holding_duck =
-      (cmd->buttons.value & cstypes::command_buttons::kInDuck) != 0;
   const auto landing = PredictLandingFraction(local.pawn, movement_services,
-                                              prestate, holding_duck);
+                                              prestate);
   if (!landing) {
     return;
   }

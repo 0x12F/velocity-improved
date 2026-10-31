@@ -171,7 +171,7 @@ class Impacts {
               const math::Vector3& aim_angle,
               const math::Vector3& shoot_position, int tick,
               const std::array<systems::Bones::Data, 27>& skeleton,
-              bool forced);
+              bool forced = false);
 
   [[nodiscard]] static std::vector<std::string> ListCustomSounds();
   [[nodiscard]] static std::string CustomSoundsDirectoryNarrow();

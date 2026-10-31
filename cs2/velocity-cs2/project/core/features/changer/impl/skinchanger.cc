@@ -494,6 +494,7 @@ void application::ForceUpdate() {
 }
 
 void application::Reset() {
+  shared_skins::Reset();
   g_interactive_edit_active.store(false, std::memory_order_release);
   g_interactive_edit_heartbeat_ms.store(0, std::memory_order_release);
   g_preview_blocked_until_ms.store(0, std::memory_order_release);

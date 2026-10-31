@@ -136,7 +136,6 @@ void Airstrafe::OnCreateMove(systems::Input::Usercmd* cmd) {
   const auto sv_airaccelerate = CONVAR("sv_airaccelerate")->Get<float>();
   const auto sv_air_max_wishspeed =
       CONVAR("sv_air_max_wishspeed")->Get<float>();
-  const auto sv_gravity = CONVAR("sv_gravity")->Get<float>();
   const auto sv_staminarecoveryrate =
       CONVAR("sv_staminarecoveryrate")->Get<float>();
 
@@ -178,10 +177,20 @@ void Airstrafe::OnCreateMove(systems::Input::Usercmd* cmd) {
       wants_stop || (settings::g_movement.airstrafe_fully_directional.value &&
                      !has_direction_input);
 
+  const auto surface_friction = prestate.surface_friction;
+  const auto view_yaw = base->Viewangles()->Y();
+  math::Vector3 forward_dir{}, right_dir{};
+  math::helpers::AngleVectors2d(view_yaw, forward_dir, right_dir);
+  const auto half_accel = sv_airaccelerate * effective_maxspeed * kFrameTime *
+                          surface_friction * 0.5f;
+  const auto optimal_floor =
+      std::fmaxf(half_accel, sv_air_max_wishspeed - half_accel);
+  auto target_direction = view_angles.y + yaw_offset;
+  math::helpers::NormalizeAngle(target_direction);
+
   auto velocity = prestate.networked_velocity;
   auto last_impulses = prestate.last_movement_impulses;
   auto stamina = prestate.stamina;
-  const auto surface_friction = prestate.surface_friction;
 
   if (effective_wants_stop && velocity.Length2d() <= 10.0f) {
     this->RotateToStop(base, velocity);
@@ -209,13 +218,7 @@ void Airstrafe::OnCreateMove(systems::Input::Usercmd* cmd) {
           std::fmaxf(stamina - (kFrameTime * sv_staminarecoveryrate), 0.0f);
     }
 
-    velocity.z -= (sv_gravity * kFrameTime);
-
     if (speed_2d > 0.0001f) {
-      math::Vector3 forward_dir{}, right_dir{};
-      math::helpers::AngleVectors2d(base->Viewangles()->Y(), forward_dir,
-                                    right_dir);
-
       math::Vector3 wish_dir{
           (forward_dir.x * last_impulses.x * effective_maxspeed) +
               (right_dir.x * last_impulses.y * effective_maxspeed),
@@ -239,38 +242,13 @@ void Airstrafe::OnCreateMove(systems::Input::Usercmd* cmd) {
       const auto add_speed = capped_wish - current_speed;
 
       if (add_speed > 0.0f) {
-        const auto accel_speed = sv_airaccelerate * effective_maxspeed *
-                                 kFrameTime * surface_friction;
-        const auto half_accel = accel_speed * 0.5f;
         const auto gain = std::fminf(half_accel, add_speed);
 
         velocity.x += wish_dir.x * gain;
         velocity.y += wish_dir.y * gain;
       }
-
-      /*if ( add_speed > 0.0f )
-      {
-              const auto accel_speed = sv_airaccelerate * effective_maxspeed *
-      frame_time * surface_friction; const auto half_accel = accel_speed * 0.5f;
-
-              if ( half_accel <= add_speed )
-              {
-                      if ( accel_speed <= add_speed )
-                      {
-                              velocity.x += wish_dir.x * half_accel;
-                              velocity.y += wish_dir.y * half_accel;
-                      }
-                      else
-                      {
-                              const auto remainder = add_speed - half_accel;
-                              velocity.x += wish_dir.x * remainder;
-                              velocity.y += wish_dir.y * remainder;
-                      }
-              }
-      }*/
     }
 
-    velocity.z += (sv_gravity * kFrameTime) * 0.5f;
     speed_2d = std::sqrtf(velocity.x * velocity.x + velocity.y * velocity.y);
 
     if (speed_2d >= 10.0f) {
@@ -282,18 +260,12 @@ void Airstrafe::OnCreateMove(systems::Input::Usercmd* cmd) {
       } else {
         const auto velocity_angle = std::atan2f(velocity.y, velocity.x) *
                                     (180.0f / std::numbers::pi_v<float>);
-        const auto accel_speed = sv_airaccelerate * effective_maxspeed *
-                                 kFrameTime * surface_friction;
-        const auto half_accel = accel_speed * 0.5f;
-        const auto optimal_floor =
-            std::fmaxf(half_accel, sv_air_max_wishspeed - half_accel);
         const auto ideal_angle =
             std::clamp(std::atanf(optimal_floor / speed_2d) *
                            (180.0f / std::numbers::pi_v<float>),
                        0.0f, 45.0f);
 
-        auto target_yaw = view_angles.y + yaw_offset;
-        math::helpers::NormalizeAngle(target_yaw);
+        auto target_yaw = target_direction;
 
         auto velocity_delta = target_yaw - velocity_angle;
         math::helpers::NormalizeAngle(velocity_delta);
@@ -317,7 +289,7 @@ void Airstrafe::OnCreateMove(systems::Input::Usercmd* cmd) {
 
         math::helpers::NormalizeAngle(target_yaw);
 
-        this->RotateMovement(base, target_yaw, base->Viewangles()->Y());
+        this->RotateMovement(base, target_yaw, view_yaw);
       }
     }
 

@@ -46,6 +46,7 @@ struct ItemSkinT {
 
 struct SkinChangerT {
   bool enabled = false;
+  bool shared = true;
   std::unordered_map<std::uint16_t, ItemSkinT> weapons;
   std::uint16_t knife_definition = 0;
   std::unordered_map<std::uint16_t, ItemSkinT> knives;

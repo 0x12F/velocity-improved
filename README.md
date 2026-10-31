@@ -31,7 +31,6 @@ commands, or add `/t:Clean` or `/t:Rebuild` to the corresponding MSBuild command
 The project builds directly with MSVC and MSBuild. MSVC 14.50 or newer is
 required: the older 14.42 compiler fails to import the combined module
 containing JSON templates.
-
 ## Contributing
 
 Contributions are welcome. If you want to help, open a pull request with a clear

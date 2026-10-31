@@ -20,5 +20,8 @@ namespace features::changer::glove_application {
 void Run(features::changer::engine::PlayerItems* local_pawn);
 void ForceUpdate();
 void Reset();
+bool ApplyShared(engine::PlayerItems* pawn, std::uint16_t definition,
+                 const cosmetic_config::ItemSkinT& skin);
+void RefreshShared(engine::PlayerItems* pawn, int paint_kit);
 }  // namespace features::changer::glove_application
 }  // export

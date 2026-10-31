@@ -144,7 +144,9 @@ class Input {
   };
 
   void Update();
-  void Apply();
+  void Apply(bool suppress_move_alignment = false);
+
+  [[nodiscard]] bool HasMovementSubticks(proto::BaseUsercmdPb* base) const;
 
   [[nodiscard]] Usercmd* Get() const { return this->m_current_cmd_; }
   [[nodiscard]] Usercmd* GetCurrentCmd(std::uintptr_t local_controller) const;

@@ -12,6 +12,7 @@ import <cstddef>;
 import <filesystem>;
 import <string_view>;
 import <type_traits>;
+import <vector>;
 
 export import :core.features.changer.cosmetic_configuration;
 export import :core.features.changer.engine;
@@ -31,6 +32,10 @@ void Create(features::changer::engine::ItemView *item, int paint_kit,
             const StickerArray *stickers = nullptr,
             const KeychainData *keychain = nullptr);
 void Remove(features::changer::engine::ItemView *item);
+// Opaque copies preserve native attributes when a shared cosmetic expires.
+bool Capture(engine::ItemView *item, std::vector<std::byte> &snapshot);
+bool Restore(engine::ItemView *item, const std::vector<std::byte> &snapshot);
+int PaintKit(engine::ItemView *item);
 
 // Replaces only sticker-related attributes on an existing item while preserving
 // paint, StatTrak, keychain and any other attributes already populated by the

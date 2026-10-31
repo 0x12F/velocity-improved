@@ -100,6 +100,7 @@ void BeforeFrameStage(int stage) {
   if (stage == kFrameNetUpdateEnd) {
     ConsumeConfiguration();
     UpdateLocalPawn();
+    shared_skins::Run();
     features::changer::application::Run();
   }
   if (stage == kFrameRenderEnd) {
@@ -116,6 +117,7 @@ void AfterFrameStage(int stage) {
   if (!ready.load(std::memory_order_acquire)) return;
   if (stage == kFrameNetUpdateEnd) {
     features::changer::application::ProcessPendingKeychains();
+    shared_skins::AfterFrame();
     UpdateLocalPawn();
   }
   if (stage == kFrameRenderEnd) systems::model_preview::ProcessMainThread();

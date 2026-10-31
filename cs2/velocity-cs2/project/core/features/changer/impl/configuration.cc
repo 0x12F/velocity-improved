@@ -38,15 +38,18 @@ void PublishConfiguration() {
   static int previous_ct = -1;
   static int previous_t = -1;
   static bool previous_enabled{};
+  static bool previous_shared{};
   const auto& settings = settings::g_changer;
   const auto& skins = settings.skins.data;
   if (previous == skins && previous_ct == settings.agents.ct_def &&
       previous_t == settings.agents.t_def &&
-      previous_enabled == settings.enabled.value)
+      previous_enabled == settings.enabled.value &&
+      previous_shared == settings.shared.value)
     return;
 
   features::changer::cosmetic_config::SkinChangerT next;
   next.enabled = settings.enabled.value;
+  next.shared = settings.shared.value;
   for (const auto& [definition, skin] : skins) {
     const auto* item = g_econ_item_system.FindDef(definition);
     if (!item) continue;
@@ -73,5 +76,6 @@ void PublishConfiguration() {
   previous_ct = settings.agents.ct_def;
   previous_t = settings.agents.t_def;
   previous_enabled = settings.enabled.value;
+  previous_shared = settings.shared.value;
 }
 }  // namespace features::changer

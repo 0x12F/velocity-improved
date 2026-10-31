@@ -506,6 +506,13 @@ void skin_application::ClearHudWeaponIconFor(engine::BaseEntity *weapon) {
   }
 }
 
+void skin_application::RefreshWorld(engine::Weapon *weapon, engine::ItemView *item) {
+  if (!weapon || !item) return;
+  ReleaseEntityCompositeMaterials(weapon, false);
+  SetMeshGroup(weapon, GetMeshMask(weapon->MNFallbackPaintKit()));
+  BuildModernWeaponSkinMaterial(item, weapon);
+}
+
 void skin_application::RegenerateSkins() {
   using Fn = void(__fastcall *)();
 

@@ -65,9 +65,6 @@ void Jumpbug::OnCreateMove(systems::Input::Usercmd* cmd) {
   const auto duck_amount = memory::Read<float>(
       movement_services +
       SCHEMA("CCSPlayer_MovementServices", "m_flDuckAmount"_hash));
-  const auto duck_speed = memory::Read<float>(
-      movement_services +
-      SCHEMA("CCSPlayer_MovementServices", "m_flDuckSpeed"_hash));
   const auto holding_duck =
       (buttons.value & cstypes::command_buttons::kInDuck) != 0;
   const auto mins = memory::Read<math::Vector3>(

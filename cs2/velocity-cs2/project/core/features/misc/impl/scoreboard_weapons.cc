@@ -7,16 +7,66 @@ module;
 #include <external/xdraw/xdraw.hpp>
 
 #include "core/systems/schema_macros.h"
+#include "core/rendering/branding.h"
 
 module velocity;
 
 import <cstddef>;
 import <filesystem>;
+import <fstream>;
 import <limits>;
 import <string_view>;
 import <type_traits>;
 
 namespace features::misc {
+
+namespace {
+std::uint32_t LogoChecksum(std::string_view svg) {
+  constexpr std::uint32_t kCrcPolynomial = 0xedb88320u;
+  std::uint32_t checksum = 0xffffffffu;
+  for (const unsigned char byte : svg) {
+    checksum ^= byte;
+    for (int bit = 0; bit < 8; ++bit)
+      checksum = (checksum >> 1) ^ ((checksum & 1) ? kCrcPolynomial : 0);
+  }
+  return ~checksum;
+}
+
+bool WriteBadgeImage() {
+  const auto content = game_path::CsgoDirectory();
+  if (!content) return false;
+
+  std::error_code error;
+  const auto directory = *content / "panorama/images/icons";
+  std::filesystem::create_directories(directory, error);
+  if (error) return false;
+
+  // CS2 loads compiled .vsvg resources, not a loose source .svg. A version-2
+  // Panorama DATA block contains the SVG checksum, image count, and SVG text.
+  const std::string_view svg = velocity_branding::kLogo;
+  constexpr std::uint32_t kResourceHeaderVersion = 12;
+  constexpr std::uint32_t kPanoramaVersion = 2;
+  constexpr std::uint32_t kDataBlockTag = 0x41544144u;  // DATA, little endian.
+  constexpr std::uint32_t kBlockTableOffset = 8;
+  constexpr std::uint32_t kDataOffset = 8;
+  constexpr std::uint16_t kImageCount = 0;
+  const auto checksum = LogoChecksum(svg);
+  const auto data_size = static_cast<std::uint32_t>(
+      sizeof(checksum) + sizeof(kImageCount) + svg.size());
+  const std::array<std::uint32_t, 7> header{
+      static_cast<std::uint32_t>(7 * sizeof(std::uint32_t)) + data_size,
+      kResourceHeaderVersion | (kPanoramaVersion << 16), kBlockTableOffset, 1,
+      kDataBlockTag, kDataOffset, data_size};
+
+  std::ofstream image(directory / "velocity_shared.vsvg_c", std::ios::binary);
+  image.write(reinterpret_cast<const char*>(header.data()), sizeof(header));
+  image.write(reinterpret_cast<const char*>(&checksum), sizeof(checksum));
+  image.write(reinterpret_cast<const char*>(&kImageCount), sizeof(kImageCount));
+  image.write(svg.data(), static_cast<std::streamsize>(svg.size()));
+  image.close();
+  return !image.fail();
+}
+}  // namespace
 
 static constexpr const char* kSetupScript = R"PANORAMA(
 (function () {
@@ -170,6 +220,57 @@ static constexpr const char* kSetupScript = R"PANORAMA(
 		}
 
 		return {
+			clearBadges: function () {
+				var sb = getScoreboard();
+				if (!sb) return;
+				var badges = sb.FindChildrenWithClassTraverse("velocity-user-badge");
+				for (var i = 0; i < badges.length; ++i)
+					if (isValid(badges[i])) badges[i].style.visibility = "collapse";
+			},
+			badge: function (xuid, account_id, visible, background) {
+				var sb = getScoreboard();
+				if (!sb) return;
+				var row = getRow(sb, xuid, account_id);
+				if (!row) return;
+				var name = row.FindChildTraverse("name");
+				if (!isValid(name)) return;
+				var cell = name.GetParent();
+				if (!isValid(cell)) return;
+				var badge = row.FindChildTraverse("velocity-user-badge");
+				if (!visible) {
+					if (isValid(badge)) badge.style.visibility = "collapse";
+					return;
+				}
+				// Some scoreboard layouts flow left. Keep the badge and label in
+				// their own right-flowing group while preserving the native label.
+				var parent = row.FindChildTraverse("velocity-player-name");
+				if (!isValid(parent)) {
+					parent = $.CreatePanel("Panel", cell, "velocity-player-name");
+					parent.style.flowChildren = "right";
+					parent.style.width = "fit-children";
+					parent.style.maxWidth = "100%";
+					parent.style.height = "100%";
+					parent.style.verticalAlign = "center";
+					cell.MoveChildBefore(parent, name);
+					name.SetParent(parent);
+				}
+				if (!isValid(badge)) {
+					badge = $.CreatePanel("Image", parent, "velocity-user-badge");
+					badge.AddClass("velocity-user-badge");
+					badge.style.width = "21px";
+					badge.style.height = "18px";
+					badge.style.padding = "2px";
+					badge.style.borderRadius = "3px";
+					badge.style.marginLeft = "0px";
+					badge.style.marginRight = "5px";
+					badge.style.verticalAlign = "center";
+					badge.scaling = "stretch-aspect-preserve";
+					badge.SetImage("s2r://panorama/images/icons/velocity_shared.vsvg");
+				}
+				badge.style.backgroundColor = background;
+				parent.MoveChildBefore(badge, name);
+				badge.style.visibility = "visible";
+			},
 			update: function (xuid, account_id, weapons, active_path) {
 				// RunScript already enters this panel's V8 context. Scheduling each
 				// update additionally churns CUIEngine's native async-event queue.
@@ -183,6 +284,7 @@ static constexpr const char* kSetupScript = R"PANORAMA(
 				for (var i = 0; i < containers.length; ++i) {
 					if (isValid(containers[i])) containers[i].style.visibility = "collapse";
 				}
+				SWeaponManager.clearBadges();
 			}
 		};
 
@@ -241,7 +343,8 @@ void ScoreboardWeapons::OnLevelChange() {
 }
 
 void ScoreboardWeapons::OnFrameStageNotify() {
-  if (!settings::g_misc.m_scoreboard_weapons.enabled.value) {
+  if (!settings::g_misc.m_scoreboard_weapons.enabled.value &&
+      !settings::g_changer.shared.value) {
     if (m_script_injected_) {
       ClearAll();
       m_script_injected_ = false;
@@ -281,12 +384,38 @@ void ScoreboardWeapons::OnFrameStageNotify() {
 
   const auto players =
       systems::g_entities.GetByType(systems::Entities::Type::kPlayer);
+  // Update presence in one script so clearing and restoring badges cannot be
+  // painted separately. This also clears badges on rows whose players left.
+  std::string badge_script =
+      "if(typeof(SWeaponManager)!=='undefined'){SWeaponManager.clearBadges();";
+  std::size_t badge_count = 0;
+  if (settings::g_changer.shared.value) {
+    constexpr std::uint64_t kSteamIdBase = 76561197960265728ull;
+    for (const auto& player : players) {
+      if (!player.ptr) continue;
+      const auto steamid =
+          memory::SafeRead<std::uint64_t>(
+              player.ptr + SCHEMA("CBasePlayerController", "m_steamID"_hash))
+              .value_or(0);
+      if (steamid < kSteamIdBase ||
+          (player.ptr != local.controller &&
+           !changer::shared_skins::IsUser(steamid)))
+        continue;
+      badge_script += std::format(
+          "SWeaponManager.badge(\"{}\",\"{}\",true,\"#{:06x}\");",
+          steamid, steamid - kSteamIdBase, rendering::g_menu.GetAccentRgb());
+      ++badge_count;
+    }
+  }
+  badge_script += "}";
+  (void)RunScript(badge_script);
+
   const auto items =
       systems::g_entities.GetByType(systems::Entities::Type::kItem);
   if (m_throttle_ == 8) {
     logging::console::Print(xs("[scoreboard_weapons] scoreboard opened; "
-                               "players={} weapon_entities={}\n"),
-                            players.size(), items.size());
+                               "players={} weapon_entities={} badges={}\n"),
+                            players.size(), items.size(), badge_count);
   }
   for (const auto& player : players) {
     if (!player.ptr) continue;
@@ -322,6 +451,11 @@ void ScoreboardWeapons::TryInitialize() {
 
   m_ui_engine_ = ui_engine;
   m_script_panel_ = script_panel;
+
+  if (!WriteBadgeImage()) {
+    logging::console::Print(
+        xs("[scoreboard_weapons] could not write shared-skins badge image\n"));
+  }
 
   logging::console::Print(xs("[scoreboard_weapons] injecting HUD setup script "
                              "(engine={:p} panel={:p})\n"),
@@ -374,6 +508,11 @@ void ScoreboardWeapons::SendPlayerWeapons(
           controller + SCHEMA("CBasePlayerController", "m_steamID"_hash))
           .value_or(0);
   if (steamid < kSteamIdBase) return;
+
+  if (!settings::g_misc.m_scoreboard_weapons.enabled.value) {
+    (void)SendClear(steamid);
+    return;
+  }
 
   const auto pawn_handle =
       memory::SafeRead<std::uint32_t>(

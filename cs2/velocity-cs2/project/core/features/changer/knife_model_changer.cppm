@@ -22,5 +22,7 @@ namespace features::changer::knife_application {
 bool Apply(features::changer::engine::Weapon* weapon,
            features::changer::engine::ItemView* item,
            std::uint16_t target_definition_index);
+bool Restore(engine::Weapon* weapon, engine::ItemView* item,
+             std::uint16_t definition, int subclass);
 }  // namespace features::changer::knife_application
 }  // export

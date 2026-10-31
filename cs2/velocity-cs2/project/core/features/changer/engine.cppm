@@ -79,6 +79,8 @@ class ItemHandle {
     return static_cast<int>(n_index_ & kEntryMask);
   }
 
+  [[nodiscard]] std::uint32_t Value() const noexcept { return n_index_; }
+
  private:
   std::uint32_t n_index_ = kInvalidEhandleIndex;
 };

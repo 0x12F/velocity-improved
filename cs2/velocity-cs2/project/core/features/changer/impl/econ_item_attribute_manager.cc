@@ -10,6 +10,7 @@ module velocity;
 
 import <algorithm>;
 import <bit>;
+import <cmath>;
 import <cstddef>;
 import <cstdint>;
 import <cstring>;
@@ -17,6 +18,7 @@ import <filesystem>;
 import <limits>;
 import <string_view>;
 import <type_traits>;
+import <vector>;
 
 namespace features::changer {
 namespace {
@@ -208,6 +210,51 @@ void AddKeychainAttributes(EconItemAttributeT *attributes, std::size_t &index,
       static_cast<std::int32_t>(std::clamp(keychain.seed, 0, 100000)));
 }
 }  // namespace
+
+bool attributes::Capture(engine::ItemView *item,
+                          std::vector<std::byte> &snapshot) {
+  const auto *vector = GetAttributeVector(item);
+  if (!vector || vector->size < 0 || vector->size > 256 ||
+      (vector->size > 0 && !vector->data)) return false;
+  snapshot.resize(vector->size * sizeof(EconItemAttributeT));
+  if (!snapshot.empty())
+    std::memcpy(snapshot.data(), reinterpret_cast<const void *>(vector->data),
+                snapshot.size());
+  return true;
+}
+
+int attributes::PaintKit(engine::ItemView *item) {
+  const auto *vector = GetAttributeVector(item);
+  if (!vector || vector->size < 0 || vector->size > 256) return 0;
+  const auto *values = GetAttributes(GetAttributeVector(item));
+  if (!values) return 0;
+  for (int index = 0; index < vector->size; ++index) {
+    if (values[index].def_index == kAttrPaint &&
+        std::isfinite(values[index].value) && values[index].value >= 0 &&
+        values[index].value <= 1000000)
+      return static_cast<int>(values[index].value);
+  }
+  return 0;
+}
+
+bool attributes::Restore(engine::ItemView *item,
+                          const std::vector<std::byte> &snapshot) {
+  auto *vector = GetAttributeVector(item);
+  if (!vector || !engine::allocate_attributes || !engine::free_attributes ||
+      snapshot.size() % sizeof(EconItemAttributeT) != 0) return false;
+  void *data = nullptr;
+  if (!snapshot.empty()) {
+    data = engine::allocate_attributes(snapshot.size());
+    if (!data) return false;
+    std::memcpy(data, snapshot.data(), snapshot.size());
+  }
+  Remove(item);
+  vector->size = static_cast<std::int32_t>(snapshot.size() / sizeof(EconItemAttributeT));
+  vector->data = reinterpret_cast<std::uintptr_t>(data);
+  vector->allocation_count = vector->size;
+  vector->grow_size_and_flags = kUtlVectorFixedFlags;
+  return true;
+}
 
 void attributes::Create(engine::ItemView *item, int paint_kit, float wear,
                         int seed, int stat_trak, int stat_trak_score_type,

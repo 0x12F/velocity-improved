@@ -174,6 +174,16 @@ void ResetAgentRuntimeState() {
 
 }  // namespace
 
+std::string agent_application::ModelName(engine::PlayerItems *pawn) {
+  const auto *name = GetCurrentPlayerModelName(pawn);
+  return name ? std::string(name) : std::string{};
+}
+
+bool agent_application::SetSharedModel(engine::PlayerItems *pawn,
+                                       const std::string &model) {
+  return SetAgentModel(pawn, model.c_str());
+}
+
 void application::RunAgentChanger() {
   if (!addresses::globals::source2engine_to_client ||
       !memory::CallVfunc<bool>(addresses::globals::source2engine_to_client,

@@ -549,7 +549,6 @@ void __fastcall Cheat::CreateMove(std::uintptr_t thisptr, int slot,
       {
         diag::SetExceptionPhase("create_move: rage");
         features::combat::g_rage.OnCreateMove(current_cmd);
-        features::combat::g_misc.Autostop().OnCreateMove(current_cmd);
         if (trace) {
           diag::Step("create_move: rage end");
           diag::Step("create_move: legit begin");
@@ -571,6 +570,8 @@ void __fastcall Cheat::CreateMove(std::uintptr_t thisptr, int slot,
       diag::Step("create_move: post-combat movement end");
     }
 
+    diag::SetExceptionPhase("create_move: autostop");
+    features::combat::g_misc.Autostop().OnCreateMove(current_cmd);
     diag::SetExceptionPhase("create_move: quickpeek");
     features::combat::g_misc.Quickpeek().OnCreateMove(current_cmd);
     if (trace) {
@@ -581,7 +582,8 @@ void __fastcall Cheat::CreateMove(std::uintptr_t thisptr, int slot,
     diag::SetExceptionPhase("create_move: final subtick");
     const auto final_base = current_cmd->csgo_user_cmd.MutableBase();
     if (final_base && final_base->SubtickMovesSize() > 0 &&
-        !features::movement::g_test_strafer.HandledThisTick()) {
+        !features::movement::g_test_strafer.HandledThisTick() &&
+        !features::combat::g_rage.ShouldStop()) {
       final_base->SetForwardmove(0.0f);
       final_base->SetLeftmove(0.0f);
     }
@@ -598,7 +600,10 @@ void __fastcall Cheat::CreateMove(std::uintptr_t thisptr, int slot,
     diag::Step("create_move: input apply begin");
   }
   diag::ExceptionScope exception_scope{"create_move: input apply"};
-  systems::g_input.Apply();
+  const auto suppress_alignment =
+      features::combat::g_misc.Antiaim().HasModifiedAngles() &&
+      !features::combat::g_rage.ShouldStop();
+  systems::g_input.Apply(suppress_alignment);
   if (trace_apply) {
     diag::Step("create_move: input apply end");
   }
